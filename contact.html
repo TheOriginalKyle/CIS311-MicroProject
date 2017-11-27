@@ -8,102 +8,62 @@
   <!-- Bootstrap 4 CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 
+  <!-- navmenu source -->
+  <script src="./nav.js"></script>
+  
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-    <!-- Brand -->
-    <a class="navbar-brand" href="./index.html">Kyle Bohlander</a>
-
-    <!-- Toggler/collapsibe Button -->
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-    <!-- Navbar links -->
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="./about.html">About</a>
-        </li>
-
-        <!-- Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="./blog.html" id="navbardrop" data-toggle="dropdown">Blog</a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Projects</a>
-            <a class="dropdown-item" href="#">Recent</a>
-            <a class="dropdown-item" href="#">Popular</a>
-          </div>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="./vip.html">VIP</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="./contact.html">Contact</a>
-        </li>
-      </ul>
-
-      <!-- Search Bar -->
-      <ul class="navbar-nav">
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-      </ul>
-    </div>
-  </nav>
+  <!-- Generates Navigation Menu -->
+  <script>nav()</script>
+  <!-- Modify's navigation menu to set current page to active -->
+  <script>document.getElementById("contactPg").setAttribute("class", "nav-link active")</script>
 
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <form>
         <div class="form-group" id="emailDiv">
-          <label for="inputEmail1">Email address</label>
-          <input type="email" class="form-control" id="inputEmail1" aria-describedby="emailHelp" placeholder="example@email.com" onchange="validEmail()" required/>
+          <label for="email">*Email address</label>
+          <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
+          <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableButton()"/>
         </div>
-        <div class="form-group">
-          <label for="textArea1">Subject</label>
-          <textarea class="form-control" id="textArea1" rows="1" placeholder="You're Amazing!" required></textarea>
+        <div class="form-group" id="subDiv">
+          <label for="sub">*Subject</label>
+          <div class="alert alert-warning" role="alert" id="invalid_subDiv" hidden>Cannot be blank!</div>
+          <textarea class="form-control" id="sub" rows="1" placeholder="You're Amazing!" oninput="notBlank('sub', true), enableButton()"></textarea>
         </div>
-        <div class="form-group">
-          <label for="textArea2">Content</label>
-          <textarea class="form-control" id="textArea2" rows="3" placeholder="Here's a list of reasons why I think you're the most amazing person in the history of ever..." required></textarea>
+        <div class="form-group" id="msgDiv">
+          <label for="msg">*Message</label>
+          <div class="alert alert-warning" role="alert" id="invalid_msgDiv" hidden>Cannot be blank!</div>
+          <textarea class="form-control" id="msg" rows="3" placeholder="Here's a list of reasons why I think you're the most amazing person in the history of ever..." oninput="notBlank('msg', true), enableButton()"></textarea>
         </div>
-        <button type="submit" class="btn btn-secondary" id="submitBtn" disabled>Send</button>
+        <button type="submit" class="btn btn-secondary" id="submitBtn" onclick="validEmail(true), notBlank('msg', true), notBlank('sub', true)" disabled>Send</button>
       </form>
-      <script>
-      </script>
     </div>
-
   </div>
+
   <script>
-    function validEmail()
+    function enableButton()
     {
-      var testEmail = document.getElementById("inputEmail1").value;
-      var result = /\S+@\S+\.\S+/.test(testEmail);
-      if(result == true)
+      if(validEmail(false) == true && notBlank('sub', false) == true && notBlank('msg', false) == true)
+      //If all inputs are valid enable button.
       {
         document.getElementById("submitBtn").setAttribute("class", "btn btn-primary");
         document.getElementById("submitBtn").removeAttribute("disabled");
-        try
-        {
-        document.getElementById("emailDiv").setAttribute("class", "form-group");
-        document.getElementById("emailDiv").removeAttribute("role");
-        }
-        catch(err){}//If it doesn't work user put in email correctly on first try.
-      }else
-      {
-        document.getElementById("emailDiv").setAttribute("class", "form-group alert-danger");
-        document.getElementById("emailDiv").setAttribute("role", "alert");
-        document.getElementById("submitBtn").setAttribute("class", "btn btn-secondary");
-        document.getElementById("submitBtn").addAttribute("disabled");
       }
-      console.log(result);
-      console.log(testEmail);
+      else
+      //Else disable button.
+      {
+        document.getElementById("submitBtn").setAttribute("class", "btn btn-secondary");
+        document.getElementById("submitBtn").setAttribute("disabled", "");
+      }
     }
   </script>
 
   <!-- Dependencies at bottom for faster load time -->
+
+  <!-- validInput.js -->
+  <script src="./validInput.js"></script>
 
   <!-- Jquery.js -->
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
