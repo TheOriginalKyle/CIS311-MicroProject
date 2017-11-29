@@ -130,3 +130,25 @@ function nav()
   //Inserts into body.
   document.body.appendChild(myNav);
 }
+
+function dependencies()
+{
+  var jqueryDependency = document.createElement("script");
+  jqueryDependency.setAttribute("src", "https://code.jquery.com/jquery-3.2.1.slim.min.js");
+  jqueryDependency.setAttribute("integrity", "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN");
+  jqueryDependency.setAttribute("crossorigin", "anonymous");
+
+  var popperDependency = document.createElement("script");
+  popperDependency.setAttribute("src", "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js");
+  popperDependency.setAttribute("integrity", "sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh");
+  popperDependency.setAttribute("crossorigin", "anonymous");
+
+  var bootstrapJS_Dependency = document.createElement("script");
+  bootstrapJS_Dependency.setAttribute("src", "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js");
+  bootstrapJS_Dependency.setAttribute("integrity", "sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ");
+  bootstrapJS_Dependency.setAttribute("crossorigin", "anonymous");
+
+  document.body.appendChild(jqueryDependency);
+  document.body.appendChild(popperDependency);
+  document.body.appendChild(bootstrapJS_Dependency);
+}
