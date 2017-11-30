@@ -88,6 +88,7 @@ function sha512(str)
   var buffer = new TextEncoder("utf-8").encode(str);
   return crypto.subtle.digest("SHA-512", buffer).then(function (hash)
   {
+    console.log(hex(hash));
     return hex(hash);
   });
 }
