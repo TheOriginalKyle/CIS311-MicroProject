@@ -94,20 +94,19 @@
       var email = document.getElementById("email").value;
       var pswd = document.getElementById("password1").value;
       var promise = sha512(uname + pswd)
-      var account = [];
-      account[1] = email;
-      account[2] = firstName;
-      account[3] = lastName;
+      let account = {User_Id: "", Email: "", Given_Name: "", Family_Name: ""};
+      account.Email = email;
+      account.Given_Name = firstName;
+      account.Family_Name = lastName;
       promise.then(function(digest)
       {
         // We transform the string into an arraybuffer
         console.log(digest);
-        var uid = digest.toString();
-        return account[0] = uid;
+        var uid = String(digest);
+        return account.User_Id = uid;
       }); // outputs one combined hashsum of username and password
 
-      console.log(account[1].typeof)
-      console.log(account);
+      console.log(account.User_Id);
       //Create the account somehow.
     }
     document.getElementById("emailDiv").removeAttribute("hidden");
