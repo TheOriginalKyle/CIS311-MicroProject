@@ -13,9 +13,7 @@
 
     <!-- can't be shoved in nav.js cause weird stuff happens -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
-    <script src="./aws-cognito-sdk.min.js"></script>
-
-    <script src="./amazon-cognito-identity.min.js"></script>
+    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
 
 
   </head>
@@ -61,7 +59,7 @@
             <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
           </div>
           <button type="button" class="btn btn-primary" id="loginBtn" onclick="login()" disabled>Login</button>
-          <button type="button" class="btn btn-success" onclick="createAccount()" id ="createBtn">Create Account</button>
+          <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id ="createBtn">Login with Facebook</button>
         </form>
       </div>
     </div>
@@ -83,6 +81,36 @@
       console.log(account);
     }
   }
+  function fbLogin()
+  {
+    var fbUserId;
+    var appId = '1758918304408327'; //from facebook
+    //FB / AWS
+    FB.init({appId: appId});
+    FB.login(function(response)
+    {
+      if (response.authResponse)
+      {
+        AWS.config.credentials = new AWS.WebIdentityCredentials
+        ({ //WIF
+          RoleArn: roleArn,
+          ProviderId: 'graph.facebook.com',
+          WebIdentityToken: response.authResponse.accessToken
+        });
+      }
+      else {console.log("Issue logging in");}
+      // Load the FB JS SDK asynchronously
+      (function(d, s, id)
+      {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://connect.facebook.net/en_US/all.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    });
+  }
 
   function createAccount(uname, firstName, lastName, email, pswd)
   {
@@ -98,16 +126,48 @@
       account.Email = email;
       account.Given_Name = firstName;
       account.Family_Name = lastName;
+      // outputs one combined hashsum of username and password
       promise.then(function(digest)
       {
-        // We transform the string into an arraybuffer
         console.log(digest);
-        var uid = String(digest);
-        return account.User_Id = uid;
-      }); // outputs one combined hashsum of username and password
+        account.User_Id = digest;
 
-      console.log(account.User_Id);
-      //Create the account somehow.
+        var fbUserId;
+        //var dynamodb = null;
+        //var docClient = null;
+        var appId = '1758918304408327'; //from facebook
+        var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
+
+        dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
+        docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
+
+        var params =
+        {
+          TableName: 'User_Id',
+          KeyConditionExpression: 'User_Id = :vvv',
+          // ExpressionAttributeNames:{
+          //   'itemid':'itemID'
+          //},
+          ExpressionAttributeValues:
+          {
+            ':vvv': account.User_Id
+          }
+        }; //end params
+
+        docClient.query(params, function(err, resultData)
+        {
+          if (err)
+          {
+            console.log(JSON.stringify(err, null, 2));
+          } else
+          {
+            resultData.Items.forEach(function(item)
+            {
+              console.log(item);
+            });
+          }
+        })
+      });
     }
     document.getElementById("emailDiv").removeAttribute("hidden");
     document.getElementById("retypeDiv").removeAttribute("hidden");
