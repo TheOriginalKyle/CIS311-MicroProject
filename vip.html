@@ -85,6 +85,7 @@
   {
     var fbUserId;
     var appId = '1758918304408327'; //from facebook
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
     //FB / AWS
     FB.init({appId: appId});
     FB.login(function(response)
@@ -116,55 +117,55 @@
   {
     if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
     {
-      var uname = document.getElementById("uname").value;
-      var firstName = document.getElementById("firstName").value;
-      var lastName = document.getElementById("lastName").value;
-      var email = document.getElementById("email").value;
       var pswd = document.getElementById("password1").value;
-      var promise = sha512(uname + pswd)
       let account = {User_Id: "", Email: "", Given_Name: "", Family_Name: ""};
-      account.Email = email;
-      account.Given_Name = firstName;
-      account.Family_Name = lastName;
+      account.Uname = document.getElementById("uname").value;
+      account.Email = document.getElementById("email").value;
+      account.Given_Name = document.getElementById("firstName").value;
+      account.Family_Name = document.getElementById("lastName").value;
+      var promise = sha512(account.Uname + pswd)
       // outputs one combined hashsum of username and password
       promise.then(function(digest)
       {
         console.log(digest);
-        account.User_Id = digest;
+        var uid = String(digest);
+        console.log(uid);
+        account.User_Id = uid;
 
         var fbUserId;
         //var dynamodb = null;
         //var docClient = null;
         var appId = '1758918304408327'; //from facebook
-        var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
+        var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
 
         dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
         docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
 
         var params =
         {
-          TableName: 'User_Id',
-          KeyConditionExpression: 'User_Id = :vvv',
+          Item:
+          {
+            User_Id: account.User_Id,
+            Username: account.Uname,
+            Email: account.Email,
+            First_Name: account.Given_Name,
+            Last_Name: account.Family_Name
+          },
+          TableName: 'User_Table',
+          ConditionExpression: 'attribute_not_exists(User_Id)'
           // ExpressionAttributeNames:{
           //   'itemid':'itemID'
           //},
-          ExpressionAttributeValues:
-          {
-            ':vvv': account.User_Id
-          }
         }; //end params
-
-        docClient.query(params, function(err, resultData)
+        docClient.put(params, function(err, resultData)
         {
           if (err)
           {
-            console.log(JSON.stringify(err, null, 2));
+            console.log(params);
+            console.log(err);
           } else
           {
-            resultData.Items.forEach(function(item)
-            {
-              console.log(item);
-            });
+            console.log(resultData);
           }
         })
       });
@@ -179,6 +180,7 @@
     document.getElementById("loginBtn").setAttribute("class", "btn btn-link");
     document.getElementById("loginBtn").setAttribute("onClick", "goBack()");
     document.getElementById("loginBtn").removeAttribute("disabled");
+    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
     document.getElementById("createBtn").setAttribute("disabled", "");
   }
   function goBack()
@@ -191,7 +193,8 @@
     document.getElementById("password1Lbl").innerHTML="Password";
     document.getElementById("loginBtn").innerHTML="Login";
     document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
-    document.getElementById("loginBtn").setAttribute("onClick", "")
+    document.getElementById("loginBtn").setAttribute("onClick", "");
+    document.getElementById("createBtn").setAttribute("onClick", "createAccount(), fbLogin()");
   }
   function enableBtn()
   {
