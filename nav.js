@@ -110,6 +110,48 @@ function nav()
   //Second navbar-nav element will be put to the right
   var navbarNav2 = document.createElement("ul");
   navbarNav2.setAttribute("class", "navbar-nav");
+
+  //User menu dropdown
+  var userMenuDropdown = document.createElement("li");
+  userMenuDropdown.setAttribute("class", "nav-item dropdown");
+  var userIcon = document.createElement("a");
+  userIcon.setAttribute("class", "nav-link dropdown-toggle");
+  userIcon.setAttribute("href", "./login.html");
+  userIcon.setAttribute("id", "navbardrop2");
+  userIcon.setAttribute("data-toggle", "dropdown");
+  var accountIcon = document.createElement("span");
+  accountIcon.setAttribute("class", "oi oi-person");
+  accountIcon.setAttribute("title", "person");
+  accountIcon.setAttribute("aria-hidden", "true");
+  userIcon.appendChild(accountIcon);
+  userMenuDropdown.appendChild(userIcon);
+  navbarNav2.appendChild(userMenuDropdown);
+  navbarLinks.appendChild(navbarNav2);
+
+  //Actual dropdown menu items
+  var dropdownMenu2 = document.createElement("div");
+  dropdownMenu2.setAttribute("class", "dropdown-menu");
+
+  var loginPg = document.createElement("a");
+  loginPg.setAttribute("class", "dropdown-item");
+  loginPg.setAttribute("href", "./login.html");
+  loginPg.innerHTML="Login or Register";
+  dropdownMenu2.appendChild(loginPg);
+
+  //Account Settings
+  var accountSettingsPg = document.createElement("a");
+  accountSettingsPg.setAttribute("class", "dropdown-item");
+  accountSettingsPg.setAttribute("href", "#");
+  accountSettingsPg.innerHTML="Account Settings";
+  dropdownMenu2.appendChild(accountSettingsPg);
+
+  var myProfilePg = document.createElement("a");
+  myProfilePg.setAttribute("class", "dropdown-item");
+  myProfilePg.setAttribute("href", "./myProfile.html");
+  myProfilePg.innerHTML="My Profile";
+  dropdownMenu2.appendChild(myProfilePg);
+  userMenuDropdown.appendChild(dropdownMenu2);
+
   //SearchBox
   var formClass = document.createElement("form");
   formClass.setAttribute("class", "form-inline my-2 my-lg-0");
@@ -130,25 +172,23 @@ function nav()
   //Inserts into body.
   document.body.appendChild(myNav);
 }
-
-function dependencies()
+function setCookie(cname,item,expireDays)
 {
-  var jqueryDependency = document.createElement("script");
-  jqueryDependency.setAttribute("src", "https://code.jquery.com/jquery-3.2.1.slim.min.js");
-  jqueryDependency.setAttribute("integrity", "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN");
-  jqueryDependency.setAttribute("crossorigin", "anonymous");
-
-  var popperDependency = document.createElement("script");
-  popperDependency.setAttribute("src", "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js");
-  popperDependency.setAttribute("integrity", "sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh");
-  popperDependency.setAttribute("crossorigin", "anonymous");
-
-  var bootstrapJS_Dependency = document.createElement("script");
-  bootstrapJS_Dependency.setAttribute("src", "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js");
-  bootstrapJS_Dependency.setAttribute("integrity", "sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ");
-  bootstrapJS_Dependency.setAttribute("crossorigin", "anonymous");
-
-  document.body.appendChild(jqueryDependency);
-  document.body.appendChild(popperDependency);
-  document.body.appendChild(bootstrapJS_Dependency);
+  var d = new Date();
+  d.setTime(d.getTime() + (expireDays*24*60*60*1000));
+  var expires = "expires="+ d.toUTCString();
+  var cookie = cname + JSON.stringify(item) + ";" + expires + ";path=/";
+  document.cookie = cookie;
+}
+function getCookie(cname)
+{
+    var result = document.cookie.match(new RegExp(cname + '=([^;]+)'));
+    result = JSON.parse(result[1]);
+    if(result != null)
+    {
+      return result;
+    }else
+    {
+    return "";
+    }
 }

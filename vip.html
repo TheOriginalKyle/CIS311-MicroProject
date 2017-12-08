@@ -1,221 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Bootstrap Example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- navmenu source -->
-    <script src="./nav.js"></script>
+  <!-- Bootstrap 4 CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 
-    <!-- can't be shoved in nav.js cause weird stuff happens -->
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
-    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+  <!-- Iconic -->
+  <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 
+  <!-- navmenu source -->
+  <script src="./nav.js"></script>
 
-  </head>
-  <body>
-    <script>dependencies()</script>
+  <!-- can't be shoved in nav.js cause weird stuff happens -->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+  <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
 
-    <!-- create navigation menu -->
-    <script>nav()</script>
-    <!-- Modify's navigation menu to set current page to active -->
-    <script>document.getElementById("vipPg").setAttribute("class", "nav-link active")</script>
+</head>
 
-    <div class="jumbotron jumbotron-fluid">
-      <div class="container">
-        <form id="form-div">
-          <div class="form-group" id="unameDiv">
-            <label for="uname" id="unameLbl">Username</label>
-            <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
-            <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
-          </div>
-          <div class="form-group" id="firstNameDiv" hidden>
-            <label for="firstName" id="firstNameLbl">*First Name</label>
-            <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
-            <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
-          </div>
-          <div class="form-group" id="lastNameDiv" hidden>
-            <label for="lastName" id="lastNameLbl">*Last Name</label>
-            <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
-            <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
-          </div>
-          <div class="form-group" id="emailDiv" hidden>
-            <label for="email">*Email address</label>
-            <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
-            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()"/>
-          </div>
-          <div class="form-group" id="password1Div">
-            <label for="password1" id="password1Lbl">Password</label>
-            <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
-            <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()"/>
-          </div>
-          <div class="form-group" id="retypeDiv" hidden>
-            <label for="retype">*Re-type Password</label>
-            <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
-            <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
-          </div>
-          <button type="button" class="btn btn-primary" id="loginBtn" onclick="login()" disabled>Login</button>
-          <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id ="createBtn">Login with Facebook</button>
-        </form>
+<body>
+
+  <!-- create navigation menu -->
+  <script>
+    nav()
+  </script>
+  <!-- Modify's navigation menu to set current page to active -->
+  <script>
+    document.getElementById("vipPg").setAttribute("class", "nav-link active")
+  </script>
+
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h3>AwsCrud Test I/O</h3>
+      <p id="status"></p>
+      Facebook Id: <input id="keyValue" type="text" /><br /> File Name: <input id="attributeText" type="text" /><br /> Title: <input id="valueText" type="text" /><br />
+      <input type="file" id="fileChooser" />
+      <button type="button" class="btn btn-success" id="putThis" style="display:none">Put!</button>
+      <button type="button" class="btn btn-success" id="getThis" style="display:none">Get!</button>
+      <button type="button" class="btn btn-success" id="updateThis" style="display:none">Update!</button>
+      <button type="button" class="btn btn-success" id="deleteThis" style="display:none">Delete!</button>
+      <div>
+        <p id="output"></p>
       </div>
     </div>
-  </body>
-
-<script>
-  function login()
-  {
-    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
-    {
-      var uname = document.getElementById("uname").value;
-      var pswd = document.getElementById("password1").value;
-      var checkAccount = {uname, pswd};
-      if(checkAccount != null)
-      {
-        //Check if valid account.
-        //Redirect Somewhere.
-      }
-      console.log(account);
-    }
-  }
-  function fbLogin()
-  {
-    var fbUserId;
+  </div>
+  <script>
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
     var appId = '1758918304408327'; //from facebook
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
-    //FB / AWS
-    FB.init({appId: appId});
-    FB.login(function(response)
+    try
     {
-      if (response.authResponse)
+      var account = getCookie("dumpsterfireAccount");
+    }
+    catch (err)
+    {
+      console.log(err);
+      window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
+    }
+
+
+    function statusChangeCallback(response)
+    {
+      console.log('statusChangeCallback');
+      console.log(response);
+      if (response.status === 'connected')
       {
-        AWS.config.credentials = new AWS.WebIdentityCredentials
-        ({ //WIF
-          RoleArn: roleArn,
+        // Logged into your app and Facebook.
+        bucket.config.credentials = new AWS.WebIdentityCredentials(
+        { //WIF
           ProviderId: 'graph.facebook.com',
+          RoleArn: roleArn,
           WebIdentityToken: response.authResponse.accessToken
         });
+        // Check if the facebook ID in the cookie is correct
+        if (account.Facebook_Id == response.authResponse.userID)
+        {
+          AWS.config.credentials = new AWS.WebIdentityCredentials(
+          { //WIF
+            RoleArn: roleArn,
+            ProviderId: 'graph.facebook.com',
+            WebIdentityToken: response.authResponse.accessToken
+          });
+          console.log("Not a stolen cookie.")
+          //createUIForCRUD();
+          testAPI();
+          var url = window.location.href;
+          console.log("url = " + url);
+          //readURLParametersOnLoad(url);
+
+          //SECOND
+          var x = breakUpURLParameters(url);
+          document.getElementById("keyValue").value = account.Facebook_Id;
+          try
+          {
+          console.log(x.search);
+          console.log("1  = " + x.search.itemID); //please refer to http://www.w3schools.com/jsref/jsref_map.asp for example code
+          console.log("2  = " + x.search.fileName);
+          console.log("3  = " + x.search.title);
+          document.getElementById("keyValue").value = x.search.itemID; //assign your url parameter to be placeholder for your query boxes, to show off
+          document.getElementById("attributeText").value = x.search.fileName;
+          document.getElementById("valueText").value = x.search.title;
+        }catch(err)
+        {
+          console.log(err);
+        }
+        }
+        else
+        {
+          window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
+        }
+
+        // Make the buttons visible
+        document.getElementById("putThis").removeAttribute("style");
+        document.getElementById("getThis").removeAttribute("style");
+        document.getElementById("updateThis").removeAttribute("style");
+        document.getElementById("deleteThis").removeAttribute("style");
       }
-      else {console.log("Issue logging in");}
-      // Load the FB JS SDK asynchronously
+      else if (response.status === 'not_authorized')
+      {
+        // The person is logged into Facebook, but not your app.
+        document.getElementById('fb-root').innerHTML = 'Please log ' +
+          'into this app.';
+      }
+      else
+      {
+        // The person is not logged into Facebook, so we're not sure if
+        // they are logged into this app or not.
+        document.getElementById('fb-root').innerHTML = 'Please log ' +
+          'into Facebook.';
+      }
+    }
+
+    //analyze and output the url parameters as a useful array to caller, based upon http://stackoverflow.com/a/26434126
+    function breakUpURLParameters(url)
+    {
+      //  create a link in the DOM and set its href
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      console.log("path variable is " + url);
+
+      if (url == "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html" || url == "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html?all")
+        {
+          return {
+            host: link.hostname, //  'example.com'
+            port: link.port, //  12345
+            search: listObjs(), //  {startIndex: 1, pageSize: 10}
+            path: link.pathname, //  '/blog/foo/bar'
+            protocol: link.protocol //  'http:'
+          }
+        }
+        //  return an easy-to-use object that breaks apart the path
+        return {
+          host: link.hostname, //  'example.com'
+          port: link.port, //  12345
+          search: mapMaker(link.search), //  {startIndex: 1, pageSize: 10}
+          path: link.pathname, //  '/blog/foo/bar'
+          protocol: link.protocol //  'http:'
+        }
+      }
+
+      // This function is called when someone finishes with the Login
+      // Button.  See the onlogin handler attached to it in the sample
+      // code below.
+      function checkLoginState()
+      {
+        FB.getLoginStatus(function(response)
+        {
+          statusChangeCallback(response);
+        });
+      }
+
+      window.fbAsyncInit = function()
+      {
+        FB.init(
+        {
+          appId: appId,
+          cookie: true, // enable cookies to allow the server to access the session
+          xfbml: true, // parse social plugins on this page
+          version: 'v2.10' // use graph api version 2.10
+        });
+
+        FB.getLoginStatus(function(response)
+        {
+          statusChangeCallback(response);
+        });
+
+      };
+
+      // Load the SDK asynchronously
       (function(d, s, id)
       {
         var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
+        if (d.getElementById(id)) return;
         js = d.createElement(s);
         js.id = id;
-        js.src = "https://connect.facebook.net/en_US/all.js";
+        js.src = "//connect.facebook.net/en_US/sdk.js";
         fjs.parentNode.insertBefore(js, fjs);
       }(document, 'script', 'facebook-jssdk'));
-    });
-  }
 
-  function createAccount(uname, firstName, lastName, email, pswd)
-  {
-    if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
-    {
-      var pswd = document.getElementById("password1").value;
-      let account = {User_Id: "", Email: "", Given_Name: "", Family_Name: ""};
-      account.Uname = document.getElementById("uname").value;
-      account.Email = document.getElementById("email").value;
-      account.Given_Name = document.getElementById("firstName").value;
-      account.Family_Name = document.getElementById("lastName").value;
-      var promise = sha512(account.Uname + pswd)
-      // outputs one combined hashsum of username and password
-      promise.then(function(digest)
+
+      var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
+      AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+
+      var bucket = new AWS.S3(
       {
-        console.log(digest);
-        var uid = String(digest);
-        console.log(uid);
-        account.User_Id = uid;
-
-        var fbUserId;
-        //var dynamodb = null;
-        //var docClient = null;
-        var appId = '1758918304408327'; //from facebook
-        var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
-
-        dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
-        docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
-
-        var params =
+        params:
         {
-          Item:
-          {
-            User_Id: account.User_Id,
-            Username: account.Uname,
-            Email: account.Email,
-            First_Name: account.Given_Name,
-            Last_Name: account.Family_Name
-          },
-          TableName: 'User_Table',
-          ConditionExpression: 'attribute_not_exists(User_Id)'
-          // ExpressionAttributeNames:{
-          //   'itemid':'itemID'
-          //},
-        }; //end params
-        docClient.put(params, function(err, resultData)
+          Bucket: bucketName
+        }
+      });
+      /**
+       *  Convert search param string into an object or array
+       *  '?startIndex=1&pageSize=10' -> {startIndex: 1, pageSize: 10}
+       */
+      function mapMaker(search, preserveDuplicates)
+      {
+        //  option to preserve duplicate keys (e.g. 'sort=name&sort=age')
+        preserveDuplicates = preserveDuplicates || false; //  disabled by default
+
+        var outputNoDupes = {};
+        var returnableArray = []; //  optional output array to preserve duplicate keys
+
+        //  sanity check
+        if (!search) throw new Error('mapMaker: your search input param is misformed?');
+
+        //  remove ? character from your url (?foo=1&bar=2 -> 'foo=1&bar=2')
+        search = search.split('?')[1];
+
+        //  split apart your keys into a useful array of key/value pairs ('foo=1&bar=2' -> ['foo=1', 'bar=2'])
+        search = search.split('&');
+
+        //  separate keys from values (['foo=1', 'bar=2'] -> [{foo:1}, {bar:2}])
+        //  then package as an array for your caller to use as variables
+        returnableArray = search.map(function(keyval)
+        {
+          var out = {};
+          keyval = keyval.split('=');
+          out[keyval[0]] = keyval[1];
+          outputNoDupes[keyval[0]] = keyval[1]; //  might as well do the no-dupe work too while we're in the loop
+          return out;
+        });
+
+        console.log(returnableArray);
+        return (preserveDuplicates) ? returnableArray : outputNoDupes;
+      }
+
+      // Here we run a very simple test of the Graph API after login is
+      // successful.  See statusChangeCallback() for when this call is made.
+      function testAPI()
+      {
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response)
+        {
+          console.log('Successful login for: ' + response.name);
+          document.getElementById('status').innerHTML =
+            'Thanks for logging in, ' + response.name + '!';
+        });
+      }
+
+      function listObjs()
+      {
+        var prefix = 'facebook-' + account.Facebook_Id;
+        bucket.listObjects(
+        {
+          Prefix: prefix
+        }, function(err, data)
         {
           if (err)
           {
-            console.log(params);
-            console.log(err);
-          } else
-          {
-            console.log(resultData);
+            l = document.getElementById("output");
+            l.innerHTML = 'ERROR: ' + err;
           }
-        })
+          else
+          {
+            var objKeys = "";
+            data.Contents.forEach(function(obj)
+            {
+              objKeys += "<a href='http://dumpsterfire.s3-website.us-east-2.amazonaws.com/" + obj.Key + "'" +">";
+              objKeys += obj.Key + "<br>";
+            });
+            //var output = data.Item.attribute1;
+            l = document.getElementById("output");
+            l.innerHTML = objKeys;
+          }
+        });
+      }
+  </script>
+
+  <script>
+    var fbUserId;
+    var params;
+    var keyText;
+    var attText;
+    var valText;
+    var dynamodb = null;
+    var docClient = null;
+    var appId = '1758918304408327'; //from facebook
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
+    var resultData = null;
+
+    document.getElementById('fileChooser').oninput = function(){
+      var currentName = document.getElementById('fileChooser').files[0].name;
+      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
+      document.getElementById("attributeText").value = newName;
+    }
+
+    document.getElementById('putThis').onclick = function()
+    {
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
       });
-    }
-    document.getElementById("emailDiv").removeAttribute("hidden");
-    document.getElementById("retypeDiv").removeAttribute("hidden");
-    document.getElementById("firstNameDiv").removeAttribute("hidden");
-    document.getElementById("lastNameDiv").removeAttribute("hidden");
-    document.getElementById("unameLbl").innerHTML="*Username";
-    document.getElementById("password1Lbl").innerHTML="*Password";
-    document.getElementById("loginBtn").innerHTML="I already have an account.";
-    document.getElementById("loginBtn").setAttribute("class", "btn btn-link");
-    document.getElementById("loginBtn").setAttribute("onClick", "goBack()");
-    document.getElementById("loginBtn").removeAttribute("disabled");
-    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
-    document.getElementById("createBtn").setAttribute("disabled", "");
-  }
-  function goBack()
-  {
-    document.getElementById("emailDiv").setAttribute("hidden", "");
-    document.getElementById("retypeDiv").setAttribute("hidden", "");
-    document.getElementById("firstNameDiv").setAttribute("hidden", "");
-    document.getElementById("lastNameDiv").setAttribute("hidden", "");
-    document.getElementById("unameLbl").innerHTML="Username";
-    document.getElementById("password1Lbl").innerHTML="Password";
-    document.getElementById("loginBtn").innerHTML="Login";
-    document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
-    document.getElementById("loginBtn").setAttribute("onClick", "");
-    document.getElementById("createBtn").setAttribute("onClick", "createAccount(), fbLogin()");
-  }
-  function enableBtn()
-  {
-    //if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
-    if(notBlank('uname', false) == true)
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+      keyText = account.Facebook_Id;
+      var currentName = document.getElementById('fileChooser').files[0].name;
+      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
+      document.getElementById("attributeText").value = newName;
+      attText = document.getElementById("attributeText").value;
+      valText = document.getElementById("valueText").value;
+      console.log("Key Value: ", keyText);
+      console.log("Attribute: ", attText);
+      console.log("Value: ", valText);
+      params = {
+        TableName: 'VIP_Table',
+        Item:
+        {
+          itemID: keyText,
+          fileName: attText,
+          title: valText
+        }
+      };
+      docClient.put(params, function(err, data)
+      {
+        if (err) console.log(err);
+        else
+        {
+          resultData = data;
+          console.log(resultData);
+
+        }
+      })
+
+      var currentName = document.getElementById('fileChooser').files[0].name;
+      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
+
+      var file = document.getElementById("fileChooser").files[0].name;
+      if (file)
+      {
+        var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
+        var params = {
+          Key: objkey,
+          ContentType: file.type,
+          Body: file,
+          ACL: 'public-read'
+        };
+        bucket.putObject(params, function(err, data)
+        {
+          if (err)
+          {
+            console.log(err);
+          }
+          else
+          {
+            listObjs();
+          }
+        });
+      }
+      else
+      {
+        console.log("Nothing to upload.")
+      }
+    };
+
+    document.getElementById('getThis').onclick = function()
     {
-      console.log("Success!");
-      document.getElementById("createBtn").removeAttribute("disabled");
-      return true;
-    }
-    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+      keyText = document.getElementById("keyValue").value;
+      attText = document.getElementById("attributeText").value;
+      console.log("Key Value: ", keyText);
+      console.log("Attribute: ", attText);
+      params = {
+        TableName: 'VIP_Table',
+        Key:
+        {
+          itemID: keyText,
+          fileName: attText
+        }
+      };
+      docClient.get(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err, err.stack);
+        }
+        else
+        {
+          console.log("success, logging data: ");
+          console.log(data); //shows keys
+          console.log(data.Item.itemID);
+          console.log("fileName is " + data.Item.fileName + ", ")
+          console.log("Title is " + data.Item.title + ".")
+          //var output = data.Item.attribute1;
+          l = document.getElementById("output");
+          l.innerHTML = data.Item.title;
+        }
+      })
+    };
+
+    document.getElementById('updateThis').onclick = function()
     {
-      document.getElementById("loginBtn").removeAttribute("disabled");
-    }
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+      keyText = document.getElementById("keyValue").value;
+      attText = document.getElementById("attributeText").value;
+      valText = document.getElementById("valueText").value;
+      console.log("Key Value: ", keyText);
+      console.log("Attribute: ", attText);
+      console.log("Value: ", valText);
+      params = {
+        TableName: 'VIP_Table',
+        Key:
+        {
+          itemID: keyText,
+          fileName: attText
+        },
+        ExpressionAttributeNames:
+        {
+          '#title': 'title'
+        },
+        ExpressionAttributeValues:
+        {
+          ':v': valText
+        },
+        UpdateExpression: 'set #title = :v',
+      };
+
+      docClient.update(params, function(err, data)
+      {
+        if (err) console.log(err);
+        else console.log(data);
+      })
+    };
+
+    document.getElementById('deleteThis').onclick = function()
+    {
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+      keyText = document.getElementById("keyValue").value;
+      fileName = document.getElementById("attributeText").value;
+      console.log("Key Value: ", keyText);
+      params = {
+        TableName: 'VIP_Table',
+        Key:
+        {
+          itemID: keyText,
+          fileName: attText
+        }
+      };
+      docClient.delete(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err);
+        }
+        else
+        {
+          fb= document.getElementById("keyValue").value;
+          dir = "facebook-" + fb + "/" + attText
+          var params = { Bucket: "dumpsterfire", Key: dir}; bucket.deleteObject(params, function(err, data) { if (err) console.log(err, err.stack); // an error occurred else console.log(data); // successful response /* data = { } */ });
+          console.log(data);
+        });
+      };
+    });
   }
+  </script>
+</body>
+
+<script>
 </script>
 
 <!-- validInput.js -->
 <script src="./validInput.js"></script>
 
 <!-- Dependencies at bottom for faster load time -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
 </html>

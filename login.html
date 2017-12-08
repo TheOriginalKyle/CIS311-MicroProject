@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+    <!-- Iconic -->
+    <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+
+    <!-- navmenu source -->
+    <script src="./nav.js"></script>
+
+    <!-- can't be shoved in nav.js cause weird stuff happens -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+
+
+  </head>
+  <body>
+
+
+    <!-- create navigation menu -->
+    <script>nav()</script>
+    <!-- Modify's navigation menu to set current page to active -->
+    <script>document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active")</script>
+
+    <div class="jumbotron jumbotron-fluid">
+      <div class="media row justify-content-center" id="avatarDiv" hidden>
+          <img class="mr-3" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar"/>
+          <div class="fileinput fileinput-new align-self-end" data-provides="fileinput" id="fileChooserDiv">
+            <span class="btn btn-default btn-file"><input type="file" id="fileChooser"/></span>
+          </div>
+      </div>
+      <div class="container">
+        <form id="form-div">
+          <div class="form-group" id="unameDiv">
+            <label for="uname" id="unameLbl">Username</label>
+            <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
+            <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
+          </div>
+          <div class="form-group" id="firstNameDiv" hidden>
+            <label for="firstName" id="firstNameLbl">*First Name</label>
+            <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
+            <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
+          </div>
+          <div class="form-group" id="lastNameDiv" hidden>
+            <label for="lastName" id="lastNameLbl">*Last Name</label>
+            <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
+            <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
+          </div>
+          <div class="form-group" id="emailDiv" hidden>
+            <label for="email">*Email address</label>
+            <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
+            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()"/>
+          </div>
+          <div class="form-group" id="password1Div">
+            <label for="password1" id="password1Lbl">Password</label>
+            <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
+            <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()"/>
+          </div>
+          <div class="form-group" id="retypeDiv" hidden>
+            <label for="retype">*Re-type Password</label>
+            <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
+            <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
+          </div>
+          <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
+          <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id ="createBtn">Login with Facebook</button>
+        </form>
+      </div>
+    </div>
+  </body>
+
+<script>
+  var fbUserId;
+  function login()
+  {
+    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
+    {
+      var appId = '1758918304408327'; //from facebook
+      var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
+      //FB / AWS
+      FB.init({appId: appId});
+      FB.login(function(response)
+      {
+        if (response.authResponse)
+        {
+          AWS.config.credentials = new AWS.WebIdentityCredentials
+          ({ //WIF
+            RoleArn: roleArn,
+            ProviderId: 'graph.facebook.com',
+            WebIdentityToken: response.authResponse.accessToken
+          });
+          fbUserId = response.authResponse.userID;
+          console.log(fbUserId);
+          let account = {User_Id: "", Facebook_Id: "", Email: "", Given_Name: "", Family_Name: "", User_Photo: ""};
+          account.Uname = document.getElementById("uname").value;
+          account.Facebook_Id = response.authResponse.userID;
+          var pswd = document.getElementById("password1").value;
+
+          var promise = sha512(account.Uname + pswd + account.Facebook_Id)
+          // outputs one combined hashsum of username and password and facebook id
+          promise.then(function(digest)
+          {
+            var appId = '1758918304408327'; //from facebook
+            var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
+            dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
+            docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
+            var uid = String(digest);
+            account.User_Id = uid;
+            var params=
+            {
+              KeyConditionExpression:'User_Id = :vvv',
+              ExpressionAttributeValues:
+              {
+                ':vvv':account.User_Id
+              },
+              TableName:'User_Table',
+            }
+
+            docClient.query(params, function(err, resultData)
+            {
+              if(err)
+              {
+                console.log(err);
+              }else
+              {
+                resultData.Items.forEach(function(item)
+                {
+                  account.Email = item.Email;
+                  account.Given_Name = item.First_Name;
+                  account.Family_Name = item.Last_Name;
+                  account.User_Photo = item.User_Photo;
+                });
+                setCookie("dumpsterfireAccount=",account,"365");
+                window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+              }
+            });
+          });
+        }
+        else {console.log("Issue logging in");}
+        // Load the FB JS SDK asynchronously
+        (function(d, s, id)
+        {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) {return;}
+          js = d.createElement(s);
+          js.id = id;
+          js.src = "https://connect.facebook.net/en_US/all.js";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+      });
+        //Check if valid account.
+        //Redirect Somewhere.
+    }
+  }
+  function fbLogin()
+  {
+    var appId = '1758918304408327'; //from facebook
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
+    //FB / AWS
+    FB.init({appId: appId});
+    FB.login(function(response)
+    {
+      if (response.authResponse)
+      {
+        AWS.config.credentials = new AWS.WebIdentityCredentials
+        ({ //WIF
+          RoleArn: roleArn,
+          ProviderId: 'graph.facebook.com',
+          WebIdentityToken: response.authResponse.accessToken
+        });
+        fbUserId = response.authResponse.userID;
+      }
+      else {console.log("Issue logging in");}
+      // Load the FB JS SDK asynchronously
+      (function(d, s, id)
+      {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://connect.facebook.net/en_US/all.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    });
+  }
+
+  function createAccount(uname, firstName, lastName, email, pswd)
+  {
+    if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
+    {
+      var pswd = document.getElementById("password1").value;
+      let account = {User_Id: "", Facebook_Id: "", Email: "", Given_Name: "", Family_Name: "", User_Photo: ""};
+      account.Uname = document.getElementById("uname").value;
+      account.Facebook_Id = fbUserId;
+      account.Email = document.getElementById("email").value;
+      account.Given_Name = document.getElementById("firstName").value;
+      account.Family_Name = document.getElementById("lastName").value;
+      var file = document.getElementById("fileChooser").files[0];
+      if (file)
+      {
+      account.User_Photo = document.getElementById("fileChooser").files[0].name;
+      }
+      var promise = sha512(account.Uname + pswd + account.Facebook_Id)
+      // outputs one combined hashsum of username and password
+      promise.then(function(digest)
+      {
+        var uid = String(digest);
+        account.User_Id = uid;
+
+        //var fbUserId;
+        //var dynamodb = null;
+        //var docClient = null;
+        var appId = '1758918304408327'; //from facebook
+        var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
+
+        dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
+        docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
+
+        var params =
+        {
+          Item:
+          {
+            User_Id: account.User_Id,
+            Facebook_Id: account.Facebook_Id,
+            Username: account.Uname,
+            Email: account.Email,
+            First_Name: account.Given_Name,
+            Last_Name: account.Family_Name,
+            User_Photo: account.User_Photo
+          },
+          TableName: 'User_Table',
+          ConditionExpression: 'attribute_not_exists(User_Id)'
+
+        }; //end params
+        docClient.put(params, function(err, resultData)
+        {
+          if (err)
+          {
+            console.log(params);
+            console.log(err);
+          } else
+          {
+            console.log(resultData);
+            if(file)
+            {
+              var bucketName = 'dumpsterfire';
+              AWS.config.region = 'us-east-2'
+
+              var bucket = new AWS.S3({params:{Bucket: bucketName}})
+              var objKey = 'facebook-' + fbUserId + '/' + file.name;
+              var params =
+              {
+                Key: objKey,
+                ContentType: file.type,
+                Body: file,
+                ACL: 'public-read'
+              };
+              bucket.putObject(params, function(err, data)
+              {
+                if(err)
+                {
+                  console.log(params);
+                  console.log(err);
+                }else
+                {
+                  setCookie("dumpsterfireAccount=", account, "365")
+                  window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+                }
+              });
+            }else
+            {
+
+            }
+          }
+        })
+      });
+    }
+    document.getElementById("avatarDiv").removeAttribute("hidden");
+    document.getElementById("emailDiv").removeAttribute("hidden");
+    document.getElementById("retypeDiv").removeAttribute("hidden");
+    document.getElementById("firstNameDiv").removeAttribute("hidden");
+    document.getElementById("lastNameDiv").removeAttribute("hidden");
+    document.getElementById("unameLbl").innerHTML="*Username";
+    document.getElementById("password1Lbl").innerHTML="*Password";
+    document.getElementById("loginBtn").innerHTML="I already have an account.";
+    document.getElementById("loginBtn").setAttribute("class", "btn btn-link");
+    document.getElementById("loginBtn").setAttribute("onClick", "goBack()");
+    document.getElementById("loginBtn").removeAttribute("disabled");
+    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
+    document.getElementById("createBtn").setAttribute("disabled", "");
+  }
+  function goBack()
+  {
+    document.getElementById("avatarDiv").setAttribute("hidden", "");
+    document.getElementById("emailDiv").setAttribute("hidden", "");
+    document.getElementById("retypeDiv").setAttribute("hidden", "");
+    document.getElementById("firstNameDiv").setAttribute("hidden", "");
+    document.getElementById("lastNameDiv").setAttribute("hidden", "");
+    document.getElementById("unameLbl").innerHTML="Username";
+    document.getElementById("password1Lbl").innerHTML="Password";
+    document.getElementById("loginBtn").innerHTML="Login";
+    document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
+    document.getElementById("loginBtn").setAttribute("onClick", "");
+    document.getElementById("createBtn").setAttribute("onClick", "createAccount(), fbLogin()");
+  }
+  function enableBtn()
+  {
+    if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
+    {
+      document.getElementById("createBtn").removeAttribute("disabled");
+      return true;
+    }
+    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
+    {
+      document.getElementById("loginBtn").removeAttribute("disabled");
+    }
+  }
+</script>
+
+<!-- validInput.js -->
+<script src="./validInput.js"></script>
+
+<!-- Dependencies at bottom for faster load time -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+<script  src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+</html>
