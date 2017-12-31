@@ -106,44 +106,84 @@
           account.Facebook_Id = response.authResponse.userID;
           var pswd = document.getElementById("password1").value;
 
-          var promise = sha512(account.Uname + pswd + account.Facebook_Id)
-          // outputs one combined hashsum of username and password and facebook id
-          promise.then(function(digest)
+          var authenticationData =
           {
-            var appId = '1758918304408327'; //from facebook
-            var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
-            dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
-            docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
-            var uid = String(digest);
-            account.User_Id = uid;
-            var params=
-            {
-              KeyConditionExpression:'User_Id = :vvv',
-              ExpressionAttributeValues:
-              {
-                ':vvv':account.User_Id
-              },
-              TableName:'User_Table',
-            }
+            Username : account.Uname,
+            Password : pswd
+          };
 
-            docClient.query(params, function(err, resultData)
+          var authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
+          var poolData =
+          {
+            UserPoolId : 'us-east-2_Yb705u1zm', // Your user pool id here
+            ClientId : '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
+          };
+          var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+          var userData =
+          {
+            Username : account.Uname,
+            Pool : userPool
+          };
+          var cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+          cognitoUser.authenticateUser(authenticationDetails,
+          {
+            onSuccess: function (result)
             {
-              if(err)
+              console.log('access token + ' + result.getAccessToken().getJwtToken());
+
+              //POTENTIAL: Region needs to be set if not already set previously elsewhere.
+              AWS.config.region = 'us-east-2';
+
+              AWS.config.credentials = new AWS.CognitoIdentityCredentials(
               {
-                console.log(err);
-              }else
-              {
-                resultData.Items.forEach(function(item)
+                IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
+                Logins :
                 {
-                  account.Email = item.Email;
-                  account.Given_Name = item.First_Name;
-                  account.Family_Name = item.Last_Name;
-                  account.User_Photo = item.User_Photo;
-                });
-                setCookie("dumpsterfireAccount=",account,"365");
-                window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
-              }
-            });
+                  // Change the key below according to the specific region your user pool is in.
+                  'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm' : result.getIdToken().getJwtToken()
+                }
+              });
+
+              //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+              AWS.config.credentials.refresh((error) =>
+              {
+                if (error)
+                {
+                  console.error(error);
+                }
+                else
+                {
+                  // Instantiate aws sdk service objects now that the credentials have been updated.
+                  // example: var s3 = new AWS.S3();
+                  console.log('Successfully logged!');
+
+                  cognitoUser.getUserAttributes(function(err, result)
+                  {
+                    if (err)
+                    {
+                      alert(err);
+                      return;
+                    }
+                    for (i = 0; i < result.length; i++)
+                    {
+                      if(result[i].getName() == 'email'){account.Email = result[i].getValue()};
+                      if(result[i].getName() == 'given_name'){account.Given_Name = result[i].getValue()};
+                      if(result[i].getName() == 'family_name'){account.Family_Name = result[i].getValue()};
+                      if(result[i].getName() == 'picture'){account.User_Photo = result[i].getValue()};
+                      if(result[i].getName() == 'sub'){account.User_Id = result[i].getValue()};
+                    }
+                    setCookie("dumpsterfireAccount=", account, "365")
+                    window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+                  });
+                }
+              });
+            },
+
+            onFailure: function(err)
+            {
+              alert(err);
+            },
+
           });
         }
         else {console.log("Issue logging in");}
@@ -158,8 +198,8 @@
           fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
       });
-        //Check if valid account.
-        //Redirect Somewhere.
+      //Check if valid account.
+      //Redirect Somewhere.
     }
   }
   function fbLogin()
@@ -180,7 +220,10 @@
         });
         fbUserId = response.authResponse.userID;
       }
-      else {console.log("Issue logging in");}
+      else
+      {
+        console.log("Issue logging in");
+      }
       // Load the FB JS SDK asynchronously
       (function(d, s, id)
       {
@@ -208,13 +251,52 @@
       var file = document.getElementById("fileChooser").files[0];
       if (file)
       {
-      account.User_Photo = document.getElementById("fileChooser").files[0].name;
+        fileName = document.getElementById("fileChooser").files[0].name;
+        //Odds of having the exact same name is 1 and 100 quintillion.
+        var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
+        var currentUrl = window.location.href;
+        var baseUrl = currentUrl.substring(0, 55);
+
+        account.User_Photo = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
+        var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
+
+        var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
+        AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+
+        var bucket = new AWS.S3(
+        {
+          params:
+          {
+            Bucket: bucketName
+          }
+        });
+
+        var params =
+        {
+          Key: objkey,
+          ContentType: file.type,
+          Body: file,
+          ACL: 'public-read'
+        };
+
+        bucket.putObject(params, function(err, data)
+        {
+          if (err)
+          {
+            console.log(err);
+          }
+          else
+          {
+
+          }
+        });
       }
 
+      AWSCognito.config.region = 'us-east-2';
       var poolData =
       {
-        UserPoolId : '...', // Your user pool id here
-        ClientId : '...' // Your client id here
+        UserPoolId : 'us-east-2_Yb705u1zm', // Your user pool id here
+        ClientId : '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
       };
       var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
 
@@ -223,105 +305,76 @@
       var dataEmail =
       {
         Name : 'email',
-        Value : 'email@mydomain.com'
+        Value : account.Email
       };
 
-      var dataPhoneNumber =
+      var dataGivenName =
       {
-        Name : 'phone_number',
-        Value : '+15555555555'
+        Name : 'given_name',
+        Value : account.Given_Name
+      };
+
+      var dataFamilyName =
+      {
+        Name : 'family_name',
+        Value : account.Family_Name
+      };
+
+      var dataPicture =
+      {
+        Name : 'picture',
+        Value : account.User_Photo
       };
 
       var attributeEmail = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail);
-      var attributePhoneNumber = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataPhoneNumber);
+      var attributeGivenName = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataGivenName);
+      var attributeFamilyName = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataFamilyName);
+      var attributePicture = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataPicture);
 
       attributeList.push(attributeEmail);
-      attributeList.push(attributePhoneNumber);
+      attributeList.push(attributeGivenName);
+      attributeList.push(attributeFamilyName);
+      attributeList.push(attributePicture);
 
-      userPool.signUp('username', 'password', attributeList, null, function(err, result){
-      if (err)
+      userPool.signUp(account.Uname, pswd, attributeList, null, function(err, result)
       {
-        alert(err);
-        return;
-      }
-      cognitoUser = result.user;
-      console.log('user name is ' + cognitoUser.getUsername());
-    });
-      var promise = sha512(account.Uname + pswd + account.Facebook_Id)
-      // outputs one combined hashsum of username and password
-      promise.then(function(digest)
-      {
-        var uid = String(digest);
-        account.User_Id = uid;
-
-        //var fbUserId;
-        //var dynamodb = null;
-        //var docClient = null;
-        var appId = '1758918304408327'; //from facebook
-        var roleArn = 'arn:aws:iam::398804394159:policy/User_Table-add '; //from AWS IAM
-
-        dynamodb = new AWS.DynamoDB({region: 'us-east-2'});
-        docClient = new AWS.DynamoDB.DocumentClient({service: dynamodb});
-
-        var params =
+        if (err)
         {
-          Item:
-          {
-            User_Id: account.User_Id,
-            Facebook_Id: account.Facebook_Id,
-            Username: account.Uname,
-            Email: account.Email,
-            First_Name: account.Given_Name,
-            Last_Name: account.Family_Name,
-            User_Photo: account.User_Photo
-          },
-          TableName: 'User_Table',
-          ConditionExpression: 'attribute_not_exists(User_Id)'
-
-        }; //end params
-        docClient.put(params, function(err, resultData)
+          alert(err);
+          return;
+        }
+        else
         {
-          if (err)
-          {
-            console.log(params);
-            console.log(err);
-          } else
-          {
-            console.log(resultData);
-            if(file)
-            {
-              var bucketName = 'dumpsterfire';
-              AWS.config.region = 'us-east-2'
+          cognitoUser = result.user;
+          var cognitoUser = userPool.getCurrentUser();
 
-              var bucket = new AWS.S3({params:{Bucket: bucketName}})
-              var objKey = 'facebook-' + fbUserId + '/' + file.name;
-              var params =
-              {
-                Key: objKey,
-                ContentType: file.type,
-                Body: file,
-                ACL: 'public-read'
-              };
-              bucket.putObject(params, function(err, data)
-              {
-                if(err)
-                {
-                  console.log(params);
-                  console.log(err);
-                }else
-                {
-                  setCookie("dumpsterfireAccount=", account, "365")
-                  window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
-                }
-              });
-            }else
+          if (cognitoUser != null)
+          {
+	          cognitoUser.getSession(function(err, result)
             {
+		          if (result)
+              {
+			          console.log('You are now logged in.');
 
-            }
+			          // Add the User's Id Token to the Cognito credentials login map.
+			          AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                {
+				          IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+				          Logins:
+                  {
+					          'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': result.getIdToken().getJwtToken()
+				          }
+			          });
+
+                setCookie("dumpsterfireAccount=", account, "365")
+                window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+		          }
+	          });
           }
-        })
+        }
       });
     }
+
     document.getElementById("avatarDiv").removeAttribute("hidden");
     document.getElementById("emailDiv").removeAttribute("hidden");
     document.getElementById("retypeDiv").removeAttribute("hidden");
