@@ -1,85 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Bootstrap Example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Iconic -->
-    <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+  <!-- Bootstrap 4 CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 
-    <!-- navmenu source -->
-    <script src="./nav.js"></script>
+  <!-- Iconic -->
+  <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 
-    <!-- can't be shoved in nav.js cause weird stuff happens -->
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
-    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+  <!-- navmenu source -->
+  <script src="./nav.js"></script>
 
-    <!-- Aws cognito -->
-    <script src="./aws-cognito-sdk.min.js"></script>
-    <script src="./amazon-cognito-identity.min.js"></script>
+  <!-- can't be shoved in nav.js cause weird stuff happens -->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+  <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
 
-  </head>
-  <body>
+  <!-- Aws cognito -->
+  <script src="./aws-cognito-sdk.min.js"></script>
+  <script src="./amazon-cognito-identity.min.js"></script>
 
-    <!-- create navigation menu -->
-    <script>nav()</script>
-    <!-- Modify's navigation menu to set current page to active -->
-    <script>document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active")</script>
+</head>
 
-    <div class="jumbotron jumbotron-fluid">
-      <div class="container" id="avatarInput" hidden>
-        <div class="d-flex p-2 justify-content-center" id="avatarDiv">
-          <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar"/>
-        </div>
-        <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
-          <label class="custom-file" style="padding-top:3"id="fileChooserLbl">
+<body>
+
+  <!-- create navigation menu -->
+  <script>
+    nav()
+  </script>
+  <!-- Modify's navigation menu to set current page to active -->
+  <script>
+    document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active")
+  </script>
+
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container" id="avatarInput" hidden>
+      <div class="d-flex p-2 justify-content-center" id="avatarDiv">
+        <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar" />
+      </div>
+      <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
+        <label class="custom-file" style="padding-top:3" id="fileChooserLbl">
             <input type="file" id="fileChooser" style="width:300px"/>
             <span class="custom-file-control"/>
           </label>
-        </div>
-      </div>
-      <div class="container">
-        <form id="form-div">
-          <div class="form-group" id="unameDiv">
-            <label for="uname" id="unameLbl">Username</label>
-            <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
-            <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
-          </div>
-          <div class="form-group" id="firstNameDiv" hidden>
-            <label for="firstName" id="firstNameLbl">*First Name</label>
-            <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
-            <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
-          </div>
-          <div class="form-group" id="lastNameDiv" hidden>
-            <label for="lastName" id="lastNameLbl">*Last Name</label>
-            <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
-            <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
-          </div>
-          <div class="form-group" id="emailDiv" hidden>
-            <label for="email">*Email address</label>
-            <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
-            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()"/>
-          </div>
-          <div class="form-group" id="password1Div">
-            <label for="password1" id="password1Lbl">Password</label>
-            <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
-            <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()"/>
-          </div>
-          <div class="form-group" id="retypeDiv" hidden>
-            <label for="retype">*Re-type Password</label>
-            <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
-            <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
-          </div>
-          <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
-          <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id ="createBtn">Login with Facebook</button>
-        </form>
       </div>
     </div>
-  </body>
+    <div class="container">
+      <form id="form-div">
+        <div class="form-group" id="unameDiv">
+          <label for="uname" id="unameLbl">Username</label>
+          <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
+          <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
+        </div>
+        <div class="form-group" id="firstNameDiv" hidden>
+          <label for="firstName" id="firstNameLbl">*First Name</label>
+          <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
+          <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
+        </div>
+        <div class="form-group" id="lastNameDiv" hidden>
+          <label for="lastName" id="lastNameLbl">*Last Name</label>
+          <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
+          <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
+        </div>
+        <div class="form-group" id="emailDiv" hidden>
+          <label for="email">*Email address</label>
+          <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
+          <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()" />
+        </div>
+        <div class="form-group" id="password1Div">
+          <label for="password1" id="password1Lbl">Password</label>
+          <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
+          <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()" />
+        </div>
+        <div class="form-group" id="retypeDiv" hidden>
+          <label for="retype">*Re-type Password</label>
+          <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
+          <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
+        </div>
+        <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
+        <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id="createBtn">Login with Facebook</button>
+      </form>
+    </div>
+  </div>
+</body>
 
 <script>
   var fbUserId;
@@ -88,51 +94,58 @@
 
   function login()
   {
-    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
+    if (notBlank('uname', false) == true && notBlank('password1', false) == true)
     {
       var appId = '1758918304408327'; //from facebook
       var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
       //FB / AWS
-      FB.init({appId: appId});
+      FB.init(
+      {
+        appId: appId
+      });
       FB.login(function(response)
       {
         if (response.authResponse)
         {
-          AWS.config.credentials = new AWS.WebIdentityCredentials
-          ({ //WIF
+          AWS.config.credentials = new AWS.WebIdentityCredentials(
+          { //WIF
             RoleArn: roleArn,
             ProviderId: 'graph.facebook.com',
             WebIdentityToken: response.authResponse.accessToken
           });
           fbUserId = response.authResponse.userID;
           console.log(fbUserId);
-          let account = {User_Id: "", Facebook_Id: "", Email: "", Given_Name: "", Family_Name: "", User_Photo: ""};
+          let account = {
+            User_Id: "",
+            Facebook_Id: "",
+            Email: "",
+            Given_Name: "",
+            Family_Name: "",
+            User_Photo: ""
+          };
           account.Uname = document.getElementById("uname").value;
           account.Facebook_Id = response.authResponse.userID;
           var pswd = document.getElementById("password1").value;
 
-          var authenticationData =
-          {
-            Username : account.Uname,
-            Password : pswd
+          var authenticationData = {
+            Username: account.Uname,
+            Password: pswd
           };
 
           var authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
-          var poolData =
-          {
-            UserPoolId : 'us-east-2_Yb705u1zm', // Your user pool id here
-            ClientId : '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
+          var poolData = {
+            UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
+            ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
           };
           var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
-          var userData =
-          {
-            Username : account.Uname,
-            Pool : userPool
+          var userData = {
+            Username: account.Uname,
+            Pool: userPool
           };
           var cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
           cognitoUser.authenticateUser(authenticationDetails,
           {
-            onSuccess: function (result)
+            onSuccess: function(result)
             {
               console.log('access token + ' + result.getAccessToken().getJwtToken());
 
@@ -141,11 +154,11 @@
 
               AWS.config.credentials = new AWS.CognitoIdentityCredentials(
               {
-                IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
-                Logins :
+                IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
+                Logins:
                 {
                   // Change the key below according to the specific region your user pool is in.
-                  'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm' : result.getIdToken().getJwtToken()
+                  'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm': result.getIdToken().getJwtToken()
                 }
               });
 
@@ -171,14 +184,29 @@
                     }
                     for (i = 0; i < result.length; i++)
                     {
-                      if(result[i].getName() == 'email'){account.Email = result[i].getValue()};
-                      if(result[i].getName() == 'given_name'){account.Given_Name = result[i].getValue()};
-                      if(result[i].getName() == 'family_name'){account.Family_Name = result[i].getValue()};
-                      if(result[i].getName() == 'picture'){account.User_Photo = result[i].getValue()};
-                      if(result[i].getName() == 'sub'){account.User_Id = result[i].getValue()};
+                      if (result[i].getName() == 'email')
+                      {
+                        account.Email = result[i].getValue()
+                      };
+                      if (result[i].getName() == 'given_name')
+                      {
+                        account.Given_Name = result[i].getValue()
+                      };
+                      if (result[i].getName() == 'family_name')
+                      {
+                        account.Family_Name = result[i].getValue()
+                      };
+                      if (result[i].getName() == 'picture')
+                      {
+                        account.User_Photo = result[i].getValue()
+                      };
+                      if (result[i].getName() == 'sub')
+                      {
+                        account.User_Id = result[i].getValue()
+                      };
                     }
                     setCookie("dumpsterfireAccount=", account, "365")
-                    window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+                    window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
                   });
                 }
               });
@@ -191,12 +219,18 @@
 
           });
         }
-        else {console.log("Issue logging in");}
+        else
+        {
+          console.log("Issue logging in");
+        }
         // Load the FB JS SDK asynchronously
         (function(d, s, id)
         {
           var js, fjs = d.getElementsByTagName(s)[0];
-          if (d.getElementById(id)) {return;}
+          if (d.getElementById(id))
+          {
+            return;
+          }
           js = d.createElement(s);
           js.id = id;
           js.src = "https://connect.facebook.net/en_US/all.js";
@@ -207,18 +241,22 @@
       //Redirect Somewhere.
     }
   }
+
   function fbLogin()
   {
     var appId = '1758918304408327'; //from facebook
     var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
     //FB / AWS
-    FB.init({appId: appId});
+    FB.init(
+    {
+      appId: appId
+    });
     FB.login(function(response)
     {
       if (response.authResponse)
       {
-        AWS.config.credentials = new AWS.WebIdentityCredentials
-        ({ //WIF
+        AWS.config.credentials = new AWS.WebIdentityCredentials(
+        { //WIF
           RoleArn: roleArn,
           ProviderId: 'graph.facebook.com',
           WebIdentityToken: response.authResponse.accessToken
@@ -233,7 +271,10 @@
       (function(d, s, id)
       {
         var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
+        if (d.getElementById(id))
+        {
+          return;
+        }
         js = d.createElement(s);
         js.id = id;
         js.src = "https://connect.facebook.net/en_US/all.js";
@@ -244,10 +285,17 @@
 
   function createAccount(uname, firstName, lastName, email, pswd)
   {
-    if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
+    if (notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
     {
       var pswd = document.getElementById("password1").value;
-      let account = {User_Id: "", Facebook_Id: "", Email: "", Given_Name: "", Family_Name: "", User_Photo: ""};
+      let account = {
+        User_Id: "",
+        Facebook_Id: "",
+        Email: "",
+        Given_Name: "",
+        Family_Name: "",
+        User_Photo: ""
+      };
       account.Uname = document.getElementById("uname").value;
       account.Facebook_Id = fbUserId;
       account.Email = document.getElementById("email").value;
@@ -276,8 +324,7 @@
           }
         });
 
-        var params =
-        {
+        var params = {
           Key: objkey,
           ContentType: file.type,
           Body: file,
@@ -298,37 +345,32 @@
       }
 
       AWSCognito.config.region = 'us-east-2';
-      var poolData =
-      {
-        UserPoolId : 'us-east-2_Yb705u1zm', // Your user pool id here
-        ClientId : '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
+      var poolData = {
+        UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
+        ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
       };
       var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
 
       var attributeList = [];
 
-      var dataEmail =
-      {
-        Name : 'email',
-        Value : account.Email
+      var dataEmail = {
+        Name: 'email',
+        Value: account.Email
       };
 
-      var dataGivenName =
-      {
-        Name : 'given_name',
-        Value : account.Given_Name
+      var dataGivenName = {
+        Name: 'given_name',
+        Value: account.Given_Name
       };
 
-      var dataFamilyName =
-      {
-        Name : 'family_name',
-        Value : account.Family_Name
+      var dataFamilyName = {
+        Name: 'family_name',
+        Value: account.Family_Name
       };
 
-      var dataPicture =
-      {
-        Name : 'picture',
-        Value : account.User_Photo
+      var dataPicture = {
+        Name: 'picture',
+        Value: account.User_Photo
       };
 
       var attributeEmail = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail);
@@ -355,26 +397,26 @@
 
           if (cognitoUser != null)
           {
-	          cognitoUser.getSession(function(err, result)
+            cognitoUser.getSession(function(err, result)
             {
-		          if (result)
+              if (result)
               {
-			          console.log('You are now logged in.');
+                console.log('You are now logged in.');
 
-			          // Add the User's Id Token to the Cognito credentials login map.
-			          AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                // Add the User's Id Token to the Cognito credentials login map.
+                AWS.config.credentials = new AWS.CognitoIdentityCredentials(
                 {
-				          IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
-				          Logins:
+                  IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                  Logins:
                   {
-					          'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': result.getIdToken().getJwtToken()
-				          }
-			          });
+                    'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': result.getIdToken().getJwtToken()
+                  }
+                });
 
                 setCookie("dumpsterfireAccount=", account, "365")
-                window.location.href="http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
-		          }
-	          });
+                window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
+              }
+            });
           }
         }
       });
@@ -385,15 +427,16 @@
     document.getElementById("retypeDiv").removeAttribute("hidden");
     document.getElementById("firstNameDiv").removeAttribute("hidden");
     document.getElementById("lastNameDiv").removeAttribute("hidden");
-    document.getElementById("unameLbl").innerHTML="*Username";
-    document.getElementById("password1Lbl").innerHTML="*Password";
-    document.getElementById("loginBtn").innerHTML="I already have an account.";
+    document.getElementById("unameLbl").innerHTML = "*Username";
+    document.getElementById("password1Lbl").innerHTML = "*Password";
+    document.getElementById("loginBtn").innerHTML = "I already have an account.";
     document.getElementById("loginBtn").setAttribute("class", "btn btn-link");
     document.getElementById("loginBtn").setAttribute("onClick", "goBack()");
     document.getElementById("loginBtn").removeAttribute("disabled");
     document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
     document.getElementById("createBtn").setAttribute("disabled", "");
   }
+
   function goBack()
   {
     document.getElementById("avatarInput").setAttribute("hidden", "");
@@ -401,21 +444,22 @@
     document.getElementById("retypeDiv").setAttribute("hidden", "");
     document.getElementById("firstNameDiv").setAttribute("hidden", "");
     document.getElementById("lastNameDiv").setAttribute("hidden", "");
-    document.getElementById("unameLbl").innerHTML="Username";
-    document.getElementById("password1Lbl").innerHTML="Password";
-    document.getElementById("loginBtn").innerHTML="Login";
+    document.getElementById("unameLbl").innerHTML = "Username";
+    document.getElementById("password1Lbl").innerHTML = "Password";
+    document.getElementById("loginBtn").innerHTML = "Login";
     document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
     document.getElementById("loginBtn").setAttribute("onClick", "");
     document.getElementById("createBtn").setAttribute("onClick", "createAccount(), fbLogin()");
   }
+
   function enableBtn()
   {
-    if(notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
+    if (notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
     {
       document.getElementById("createBtn").removeAttribute("disabled");
       return true;
     }
-    if(notBlank('uname', false) == true && notBlank('password1', false) == true)
+    if (notBlank('uname', false) == true && notBlank('password1', false) == true)
     {
       document.getElementById("loginBtn").removeAttribute("disabled");
     }
@@ -428,7 +472,8 @@
 <!-- Dependencies at bottom for faster load time -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 
-<script  src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
 </html>

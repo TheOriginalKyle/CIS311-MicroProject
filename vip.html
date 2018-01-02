@@ -16,12 +16,12 @@
   <script src="./nav.js"></script>
 
   <!-- can't be shoved in nav.js cause weird stuff happens -->
-  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
   <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
 
   <!-- Aws cognito, must be in this order-->
   <script src="./aws-cognito-sdk.min.js"></script>
   <script src="./amazon-cognito-identity.min.js"></script>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
 
 </head>
 
@@ -40,27 +40,28 @@
     <div class="container">
       <h3 style="text-align:center">AwsCrud Test I/O</h3>
       <p id="status"></p>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col" style="text-align:center">#</th>
-            <th scope="col" style="text-align:center">File</th>
-            <th scope="col" style="text-align:center">Link</th>
-            <th scope="col" style="text-align:center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th class="align-middle" style="text-align:center" scope="row">1</th>
-            <td><input id="titleValue" class="form-control" type="text" /></td>
-            <td class="align-middle">Link to File</td>
-            <td class="align-middle"style="white-space:nowrap; text-align:center"><button type="button" class="btn btn-success" id="getThis">Get!</button>
-            <button type="button" class="btn btn-success" id="updateThis">Update!</button>
-            <button type="button" class="btn btn-success" id="deleteThis">Delete!</button></td>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col" style="text-align:center">#</th>
+              <th scope="col" style="text-align:center">File</th>
+              <th scope="col" style="text-align:center">Link</th>
+              <th scope="col" style="text-align:center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="rudBody">
+            <tr>
+              <th class="align-middle" style="text-align:center" scope="row">1</th>
+              <td><input id="rudTitleValue" class="form-control" type="text" /></td>
+              <td class="align-middle" id="rudLinkValue">Link to File</td>
+              <td class="align-middle" style="white-space:nowrap; text-align:center"><button type="button" class="btn btn-success" id="getThis">Get!</button>
+                <button type="button" class="btn btn-success" id="updateThis">Update!</button>
+                <button type="button" class="btn btn-success" id="deleteThis">Delete!</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div>
         <p id="output"></p>
       </div>
@@ -77,7 +78,7 @@
           <th scope="col" style="text-align:center"></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="cBody">
         <tr>
           <th class="align-middle" scope="row">Add</th>
           <td>
@@ -86,8 +87,8 @@
               <span class="custom-file-control"/>
             </label>
           </td>
-          <td><input id="keyValue" placeholder="File Name" class="form-control" type="text" /></td>
-          <td class="align-middle">Link to File</td>
+          <td><input id="cTitleValue" placeholder="File Name" class="form-control" type="text" /></td>
+          <td id="cLinkValue" class="align-middle">Link to File</td>
           <td><button type="button" class="btn btn-success" id="putThis">Upload</button></td>
         </tr>
       </tbody>
@@ -106,146 +107,170 @@
       //window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
     }
 
-
     function statusChangeCallback(response)
     {
       console.log('statusChangeCallback');
       console.log(response);
+      // The response object is returned with a status field that lets the
+      // app know the current login status of the person.
+      // Full docs on the response object can be found in the documentation
+      // for FB.getLoginStatus().
       if (response.status === 'connected')
       {
         // Logged into your app and Facebook.
-        bucket.config.credentials = new AWS.WebIdentityCredentials(
-        { //WIF
-          ProviderId: 'graph.facebook.com',
-          RoleArn: roleArn,
-          WebIdentityToken: response.authResponse.accessToken
-        });
-        // Check if the facebook ID in the cookie is correct
-        if (account.Facebook_Id == response.authResponse.userID)
-        {
-          AWS.config.credentials = new AWS.WebIdentityCredentials(
-          { //WIF
-            RoleArn: roleArn,
-            ProviderId: 'graph.facebook.com',
-            WebIdentityToken: response.authResponse.accessToken
-          });
-          console.log("Not a stolen cookie.")
-          //createUIForCRUD();
-          testAPI();
-          var url = window.location.href;
-          console.log("url = " + url);
-          //readURLParametersOnLoad(url);
+        testAPI();
+        var poolData = {
+          UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
+          ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
+        };
+        var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+        var cognitoUser = userPool.getCurrentUser();
 
-          //SECOND
-          var x = breakUpURLParameters(url);
-          document.getElementById("keyValue").value = account.Facebook_Id;
-          try
+        if (cognitoUser != null)
+        {
+          cognitoUser.getSession(function(err, session)
           {
-          console.log(x.search);
-          console.log("1  = " + x.search.itemID); //please refer to http://www.w3schools.com/jsref/jsref_map.asp for example code
-          console.log("2  = " + x.search.fileName);
-          console.log("3  = " + x.search.title);
-          document.getElementById("keyValue").value = x.search.itemID; //assign your url parameter to be placeholder for your query boxes, to show off
-          document.getElementById("attributeText").value = x.search.fileName;
-          document.getElementById("valueText").value = x.search.title;
-        }catch(err)
-        {
-          console.log(err);
-        }
-        }
-        else
-        {
-          window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
-        }
+            if (err)
+            {
+              alert(err);
+              return;
+            }
+            console.log('session validity: ' + session.isValid());
 
-        // Make the buttons visible
-        document.getElementById("putThis").removeAttribute("style");
-        document.getElementById("getThis").removeAttribute("style");
-        document.getElementById("updateThis").removeAttribute("style");
-        document.getElementById("deleteThis").removeAttribute("style");
-      }
-      else if (response.status === 'not_authorized')
-      {
-        // The person is logged into Facebook, but not your app.
-        document.getElementById('fb-root').innerHTML = 'Please log ' +
-          'into this app.';
+            // NOTE: getSession must be called to authenticate user before calling getUserAttributes
+            cognitoUser.getUserAttributes(function(err, attributes)
+            {
+              if (err)
+              {
+                // Handle error
+              }
+              else
+              {
+                // Do something with attributes
+              }
+            });
+
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+            {
+              IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
+              Logins:
+              {
+                // Change the key below according to the specific region your user pool is in.
+                'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': session.getIdToken().getJwtToken()
+              }
+            });
+
+
+
+            // Instantiate aws sdk service objects now that the credentials have been updated.
+            // example: var s3 = new AWS.S3();
+
+            bucket.config.credentials = new AWS.WebIdentityCredentials(
+            { //WIF
+              ProviderId: 'graph.facebook.com',
+              RoleArn: roleArn,
+              WebIdentityToken: response.authResponse.accessToken
+            });
+            // Check if the facebook ID in the cookie is correct
+            if (account.Facebook_Id = response.authResponse.userID)
+            {
+              AWS.config.credentials = new AWS.WebIdentityCredentials(
+              { //WIF
+                RoleArn: roleArn,
+                ProviderId: 'graph.facebook.com',
+                WebIdentityToken: response.authResponse.accessToken
+              });
+            }
+          });
+        }
       }
       else
       {
-        // The person is not logged into Facebook, so we're not sure if
-        // they are logged into this app or not.
-        document.getElementById('fb-root').innerHTML = 'Please log ' +
-          'into Facebook.';
+        // The person is not logged into your app or we are unable to tell.
+        document.getElementById('status').innerHTML = 'Please log ' +
+          'into this app.';
       }
     }
 
-    //analyze and output the url parameters as a useful array to caller, based upon http://stackoverflow.com/a/26434126
-    function breakUpURLParameters(url)
+    // This function is called when someone finishes with the Login
+    // Button.  See the onlogin handler attached to it in the sample
+    // code below.
+    function checkLoginState()
     {
-      //  create a link in the DOM and set its href
-      var link = document.createElement('a');
-      link.setAttribute('href', url);
-      console.log("path variable is " + url);
-
-      if (url == "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html" || url == "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html?all")
-        {
-          return {
-            host: link.hostname, //  'example.com'
-            port: link.port, //  12345
-            search: listObjs(), //  {startIndex: 1, pageSize: 10}
-            path: link.pathname, //  '/blog/foo/bar'
-            protocol: link.protocol //  'http:'
-          }
-        }
-        //  return an easy-to-use object that breaks apart the path
-        return {
-          host: link.hostname, //  'example.com'
-          port: link.port, //  12345
-          search: mapMaker(link.search), //  {startIndex: 1, pageSize: 10}
-          path: link.pathname, //  '/blog/foo/bar'
-          protocol: link.protocol //  'http:'
-        }
+      FB.getLoginStatus(function(response)
+      {
+        statusChangeCallback(response);
+      });
+    }
+    window.fbAsyncInit = function()
+    {
+      FB.init(
+      {
+        appId: appId,
+        cookie: true, // enable cookies to allow the server to access the session
+        xfbml: true, // parse social plugins on this page
+        version: 'v2.10' // use graph api version 2.10
+      });
+      FB.getLoginStatus(function(response)
+      {
+        statusChangeCallback(response);
+      });
+    };
+    // Load the SDK asynchronously
+    (function(d, s, id)
+    {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
+    AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+    var bucket = new AWS.S3(
+    {
+      params:
+      {
+        Bucket: bucketName
       }
+    });
 
-      // This function is called when someone finishes with the Login
-      // Button.  See the onlogin handler attached to it in the sample
-      // code below.
-      function checkLoginState()
+    function testAPI()
+    {
+      console.log('Welcome!  Fetching your information.... ');
+      FB.api('/me', function(response)
       {
-        FB.getLoginStatus(function(response)
-        {
-          statusChangeCallback(response);
-        });
-      }
+        console.log('Successful login for: ' + response.name);
+        document.getElementById('status').innerHTML =
+          'Thanks for logging in, ' + response.name + '!';
+      });
+    }
+  </script>
+  <script>
+    var fbUserId;
+    var params;
+    var titleText;
+    var fileName;
+    var dynamodb = null;
+    var docClient = null;
+    var appId = '1758918304408327'; //from facebook
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
+    var resultData = null;
 
-      window.fbAsyncInit = function()
-      {
-        FB.init(
-        {
-          appId: appId,
-          cookie: true, // enable cookies to allow the server to access the session
-          xfbml: true, // parse social plugins on this page
-          version: 'v2.10' // use graph api version 2.10
-        });
+    document.getElementById('putThis').onclick = function()
+    {
+      var file = document.getElementById("fileChooser").files[0];
+      fileName = document.getElementById("fileChooser").files[0].name;
+      //Odds of having the exact same name is 1 and 100 quintillion.
+      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
+      newName = newName.toString();
+      var currentUrl = window.location.href;
+      var baseUrl = currentUrl.substring(0, 55);
+      var fileUrl = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
 
-        FB.getLoginStatus(function(response)
-        {
-          statusChangeCallback(response);
-        });
-
-      };
-
-      // Load the SDK asynchronously
-      (function(d, s, id)
-      {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));
-
+      document.getElementById('cLinkValue').innerHTML = fileUrl
+      var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
 
       var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
       AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
@@ -257,76 +282,29 @@
           Bucket: bucketName
         }
       });
-      /**
-       *  Convert search param string into an object or array
-       *  '?startIndex=1&pageSize=10' -> {startIndex: 1, pageSize: 10}
-       */
-      function mapMaker(search, preserveDuplicates)
+
+      var params = {
+        Key: objkey,
+        ContentType: file.type,
+        Body: file,
+        ACL: 'public-read'
+      };
+
+      bucket.putObject(params, function(err, data)
       {
-        //  option to preserve duplicate keys (e.g. 'sort=name&sort=age')
-        preserveDuplicates = preserveDuplicates || false; //  disabled by default
-
-        var outputNoDupes = {};
-        var returnableArray = []; //  optional output array to preserve duplicate keys
-
-        //  sanity check
-        if (!search) throw new Error('mapMaker: your search input param is misformed?');
-
-        //  remove ? character from your url (?foo=1&bar=2 -> 'foo=1&bar=2')
-        search = search.split('?')[1];
-
-        //  split apart your keys into a useful array of key/value pairs ('foo=1&bar=2' -> ['foo=1', 'bar=2'])
-        search = search.split('&');
-
-        //  separate keys from values (['foo=1', 'bar=2'] -> [{foo:1}, {bar:2}])
-        //  then package as an array for your caller to use as variables
-        returnableArray = search.map(function(keyval)
+        if (err)
         {
-          var out = {};
-          keyval = keyval.split('=');
-          out[keyval[0]] = keyval[1];
-          outputNoDupes[keyval[0]] = keyval[1]; //  might as well do the no-dupe work too while we're in the loop
-          return out;
-        });
-
-        console.log(returnableArray);
-        return (preserveDuplicates) ? returnableArray : outputNoDupes;
-      }
-
-      // Here we run a very simple test of the Graph API after login is
-      // successful.  See statusChangeCallback() for when this call is made.
-      function testAPI()
-      {
-        console.log('Welcome!  Fetching your information.... ');
-        FB.api('/me', function(response)
+          console.log(err);
+        }
+        else
         {
-          console.log('Successful login for: ' + response.name);
-          document.getElementById('status').innerHTML =
-            'Thanks for logging in, ' + response.name + '!';
-        });
-      }
-    </script>
 
-  <script>
-    var fbUserId;
-    var params;
-    var keyText;
-    var attText;
-    var valText;
-    var dynamodb = null;
-    var docClient = null;
-    var appId = '1758918304408327'; //from facebook
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
-    var resultData = null;
+        }
+      });
 
-    document.getElementById('fileChooser').oninput = function(){
-      var currentName = document.getElementById('fileChooser').files[0].name;
-      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
-      document.getElementById("attributeText").value = newName;
-    }
 
-    document.getElementById('putThis').onclick = function()
-    {
+
+
       dynamodb = new AWS.DynamoDB(
       {
         region: 'us-east-2'
@@ -335,23 +313,17 @@
       {
         service: dynamodb
       });
-      keyText = account.Facebook_Id;
-      var currentName = document.getElementById('fileChooser').files[0].name;
-      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
-      document.getElementById("attributeText").value = newName;
-      attText = document.getElementById("attributeText").value;
-      valText = document.getElementById("valueText").value;
-      console.log("Key Value: ", keyText);
-      console.log("Attribute: ", attText);
-      console.log("Value: ", valText);
-      params = {
-        TableName: 'VIP_Table',
+
+      var cTitleValue = document.getElementById('cTitleValue').value;
+      params =
+      {
         Item:
         {
-          itemID: keyText,
-          fileName: attText,
-          title: valText
-        }
+          fileName: newName,
+          User_Id: account.User_Id,
+          title: cTitleValue
+        },
+        TableName: 'VIP_Table'
       };
       docClient.put(params, function(err, data)
       {
@@ -360,161 +332,9 @@
         {
           resultData = data;
           console.log(resultData);
-
         }
       })
-
-      var currentName = document.getElementById('fileChooser').files[0].name;
-      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
-
-      var file = document.getElementById("fileChooser").files[0].name;
-      if (file)
-      {
-        var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
-        var params = {
-          Key: objkey,
-          ContentType: file.type,
-          Body: file,
-          ACL: 'public-read'
-        };
-        bucket.putObject(params, function(err, data)
-        {
-          if (err)
-          {
-            console.log(err);
-          }
-          else
-          {
-            listObjs();
-          }
-        });
-      }
-      else
-      {
-        console.log("Nothing to upload.")
-      }
-    };
-
-    document.getElementById('getThis').onclick = function()
-    {
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-      keyText = document.getElementById("keyValue").value;
-      attText = document.getElementById("attributeText").value;
-      console.log("Key Value: ", keyText);
-      console.log("Attribute: ", attText);
-      params = {
-        TableName: 'VIP_Table',
-        Key:
-        {
-          itemID: keyText,
-          fileName: attText
-        }
-      };
-      docClient.get(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err, err.stack);
-        }
-        else
-        {
-          console.log("success, logging data: ");
-          console.log(data); //shows keys
-          console.log(data.Item.itemID);
-          console.log("fileName is " + data.Item.fileName + ", ")
-          console.log("Title is " + data.Item.title + ".")
-          //var output = data.Item.attribute1;
-          l = document.getElementById("output");
-          l.innerHTML = data.Item.title;
-        }
-      })
-    };
-
-    document.getElementById('updateThis').onclick = function()
-    {
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-      keyText = document.getElementById("keyValue").value;
-      attText = document.getElementById("attributeText").value;
-      valText = document.getElementById("valueText").value;
-      console.log("Key Value: ", keyText);
-      console.log("Attribute: ", attText);
-      console.log("Value: ", valText);
-      params = {
-        TableName: 'VIP_Table',
-        Key:
-        {
-          itemID: keyText,
-          fileName: attText
-        },
-        ExpressionAttributeNames:
-        {
-          '#title': 'title'
-        },
-        ExpressionAttributeValues:
-        {
-          ':v': valText
-        },
-        UpdateExpression: 'set #title = :v',
-      };
-
-      docClient.update(params, function(err, data)
-      {
-        if (err) console.log(err);
-        else console.log(data);
-      })
-    };
-
-    document.getElementById('deleteThis').onclick = function()
-    {
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-      keyText = document.getElementById("keyValue").value;
-      fileName = document.getElementById("attributeText").value;
-      console.log("Key Value: ", keyText);
-      params = {
-        TableName: 'VIP_Table',
-        Key:
-        {
-          itemID: keyText,
-          fileName: attText
-        }
-      };
-      docClient.delete(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-          fb= document.getElementById("keyValue").value;
-          dir = "facebook-" + fb + "/" + attText
-          var params = { Bucket: "dumpsterfire", Key: dir}; bucket.deleteObject(params, function(err, data) { if (err) console.log(err, err.stack); // an error occurred else console.log(data); // successful response /* data = { } */ });
-          console.log(data);
-        });
-      };
-    });
-  }
+    }
   </script>
 </body>
 
