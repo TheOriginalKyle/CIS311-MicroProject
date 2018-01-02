@@ -100,6 +100,7 @@
     try
     {
       var account = getCookie("dumpsterfireAccount");
+      console.log(account);
     }
     catch (err)
     {
@@ -180,6 +181,7 @@
                 ProviderId: 'graph.facebook.com',
                 WebIdentityToken: response.authResponse.accessToken
               });
+              listObjs();
             }
           });
         }
@@ -246,8 +248,48 @@
           'Thanks for logging in, ' + response.name + '!';
       });
     }
-  </script>
-  <script>
+
+    function listObjs()
+    {
+      console.log("Listing Objects");
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+
+      params =
+      {
+        ProjectionExpression: 'fileName,User_Id,title',
+        ExpressionAttributeValues:
+        {
+          ':accountId':
+          {
+            S: account.User_Id
+          }
+        },
+        FilterExpression: "contains(User_Id,:accountId)",
+        TableName: 'VIP_Table'
+      };
+      docClient.scan(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err);
+        }
+        else
+        {
+          data.Items.forEach(function(element, index, array)
+          {
+            console.log(element.title.S + " (" + element.fileName.S + ")");
+          });
+        }
+      });
+    }
+
     var fbUserId;
     var params;
     var titleText;
@@ -302,9 +344,6 @@
         }
       });
 
-
-
-
       dynamodb = new AWS.DynamoDB(
       {
         region: 'us-east-2'
@@ -315,6 +354,7 @@
       });
 
       var cTitleValue = document.getElementById('cTitleValue').value;
+      console.log(account.User_Id);
       params =
       {
         Item:
@@ -327,13 +367,20 @@
       };
       docClient.put(params, function(err, data)
       {
-        if (err) console.log(err);
+        if (err)
+        {
+          console.log(err);
+        }
         else
         {
           resultData = data;
           console.log(resultData);
         }
-      })
+      });
+    }
+
+    document.getElementById('getThis').onclick = function() {
+
     }
   </script>
 </body>
