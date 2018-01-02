@@ -31,11 +31,16 @@
     <script>document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active")</script>
 
     <div class="jumbotron jumbotron-fluid">
-      <div class="media row justify-content-center" id="avatarDiv" hidden>
-          <img class="mr-3" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar"/>
-          <div class="fileinput fileinput-new align-self-end" data-provides="fileinput" id="fileChooserDiv">
-            <span class="btn btn-default btn-file"><input type="file" id="fileChooser"/></span>
-          </div>
+      <div class="container" id="avatarInput" hidden>
+        <div class="d-flex p-2 justify-content-center" id="avatarDiv">
+          <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar"/>
+        </div>
+        <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
+          <label class="custom-file" style="padding-top:3"id="fileChooserLbl">
+            <input type="file" id="fileChooser" style="width:300px"/>
+            <span class="custom-file-control"/>
+          </label>
+        </div>
       </div>
       <div class="container">
         <form id="form-div">
@@ -375,7 +380,7 @@
       });
     }
 
-    document.getElementById("avatarDiv").removeAttribute("hidden");
+    document.getElementById("avatarInput").removeAttribute("hidden");
     document.getElementById("emailDiv").removeAttribute("hidden");
     document.getElementById("retypeDiv").removeAttribute("hidden");
     document.getElementById("firstNameDiv").removeAttribute("hidden");
@@ -391,7 +396,7 @@
   }
   function goBack()
   {
-    document.getElementById("avatarDiv").setAttribute("hidden", "");
+    document.getElementById("avatarInput").setAttribute("hidden", "");
     document.getElementById("emailDiv").setAttribute("hidden", "");
     document.getElementById("retypeDiv").setAttribute("hidden", "");
     document.getElementById("firstNameDiv").setAttribute("hidden", "");

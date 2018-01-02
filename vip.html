@@ -38,18 +38,60 @@
 
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
-      <h3>AwsCrud Test I/O</h3>
+      <h3 style="text-align:center">AwsCrud Test I/O</h3>
       <p id="status"></p>
-      Facebook Id: <input id="keyValue" type="text" /><br /> File Name: <input id="attributeText" type="text" /><br /> Title: <input id="valueText" type="text" /><br />
-      <input type="file" id="fileChooser" />
-      <button type="button" class="btn btn-success" id="putThis" style="display:none">Put!</button>
-      <button type="button" class="btn btn-success" id="getThis" style="display:none">Get!</button>
-      <button type="button" class="btn btn-success" id="updateThis" style="display:none">Update!</button>
-      <button type="button" class="btn btn-success" id="deleteThis" style="display:none">Delete!</button>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col" style="text-align:center">#</th>
+            <th scope="col" style="text-align:center">File</th>
+            <th scope="col" style="text-align:center">Link</th>
+            <th scope="col" style="text-align:center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="align-middle" style="text-align:center" scope="row">1</th>
+            <td><input id="titleValue" class="form-control" type="text" /></td>
+            <td class="align-middle">Link to File</td>
+            <td class="align-middle"style="white-space:nowrap; text-align:center"><button type="button" class="btn btn-success" id="getThis">Get!</button>
+            <button type="button" class="btn btn-success" id="updateThis">Update!</button>
+            <button type="button" class="btn btn-success" id="deleteThis">Delete!</button></td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <div>
         <p id="output"></p>
       </div>
     </div>
+  </div>
+  <div>
+    <table class="table">
+      <thead>
+        <tr style="visibility:hidden">
+          <th scope="col"></th>
+          <th scope="col" style="text-align:center"></th>
+          <th scope="col" style="text-align:center"></th>
+          <th scope="col" style="text-align:center"></th>
+          <th scope="col" style="text-align:center"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th class="align-middle" scope="row">Add</th>
+          <td>
+            <label class="custom-file">
+              <input type="file" id="fileChooser" style="width:300px"/>
+              <span class="custom-file-control"/>
+            </label>
+          </td>
+          <td><input id="keyValue" placeholder="File Name" class="form-control" type="text" /></td>
+          <td class="align-middle">Link to File</td>
+          <td><button type="button" class="btn btn-success" id="putThis">Upload</button></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <script>
     var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
@@ -263,35 +305,7 @@
             'Thanks for logging in, ' + response.name + '!';
         });
       }
-
-      function listObjs()
-      {
-        var prefix = 'facebook-' + account.Facebook_Id;
-        bucket.listObjects(
-        {
-          Prefix: prefix
-        }, function(err, data)
-        {
-          if (err)
-          {
-            l = document.getElementById("output");
-            l.innerHTML = 'ERROR: ' + err;
-          }
-          else
-          {
-            var objKeys = "";
-            data.Contents.forEach(function(obj)
-            {
-              objKeys += "<a href='http://dumpsterfire.s3-website.us-east-2.amazonaws.com/" + obj.Key + "'" +">";
-              objKeys += obj.Key + "<br>";
-            });
-            //var output = data.Item.attribute1;
-            l = document.getElementById("output");
-            l.innerHTML = objKeys;
-          }
-        });
-      }
-  </script>
+    </script>
 
   <script>
     var fbUserId;
@@ -323,7 +337,7 @@
       });
       keyText = account.Facebook_Id;
       var currentName = document.getElementById('fileChooser').files[0].name;
-      var newName = currentName.replace(/[^A-Z0-9]+/ig, "_");
+      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
       document.getElementById("attributeText").value = newName;
       attText = document.getElementById("attributeText").value;
       valText = document.getElementById("valueText").value;
