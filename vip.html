@@ -36,65 +36,65 @@
     document.getElementById("vipPg").setAttribute("class", "nav-link active")
   </script>
 
+  <!-- Put's everything in a nice perdy jumbotron -->
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h3 style="text-align:center">AwsCrud Test I/O</h3>
       <p id="status"></p>
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col" style="text-align:center">#</th>
-              <th scope="col" style="text-align:center">File</th>
-              <th scope="col" style="text-align:center">Link</th>
-              <th scope="col" style="text-align:center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="rudBody">
-            <tr>
-              <th class="align-middle" style="text-align:center" scope="row">1</th>
-              <td><input id="rudTitleValue" class="form-control" type="text" /></td>
-              <td class="align-middle" id="rudLinkValue">Link to File</td>
-              <td class="align-middle" style="white-space:nowrap; text-align:center"><button type="button" class="btn btn-success" id="getThis">Get!</button>
-                <button type="button" class="btn btn-success" id="updateThis">Update!</button>
-                <button type="button" class="btn btn-success" id="deleteThis">Delete!</button></td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Upload a File</h5>
+              <img class="rounded-circle p-2" src="https://vignette.wikia.nocookie.net/valkyriecrusade/images/b/b5/Reddit-The-Official-App-Icon.png/revision/latest?cb=20161004160133" style="height:150px" />
+              <p class="card-text">
+                <label id="cFilelbl" class="custom-file" style="text-align:left">
+                  <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
+                  <span id="cFilespan" class="custom-file-control form-control-file" ></span>
+                </label>
+              </p>
+              <p class="card-text">
+                <input id="cTitleValue" class="form-control" type="text" placeholder="FileName" />
+              </p>
+              <p class="card-text">
+                <a href="http://link">http://www.iamawesome.com</a>
+              </p>
+              <button type="button" class="btn btn-success" id="putThis">Upload</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">FileName</h5>
+              <img class="rounded-circle p-2" src="https://vignette.wikia.nocookie.net/valkyriecrusade/images/b/b5/Reddit-The-Official-App-Icon.png/revision/latest?cb=20161004160133" style="height:150px" />
+              <p class="card-text">
+                <label id="rudFilelbl" class="custom-file" style="text-align:left">
+                  <input id="rudFile" type="file" class="custom-file-input" onchange="responsiveFileName('rudFile')" >
+                  <span id="rudFilespan" class="custom-file-control form-control-file" ></span>
+                </label>
+              </p>
+              <p class="card-text">
+                <input id="rudTitleValue" class="form-control" type="text" placeholder="FileName" />
+              </p>
+              <p class="card-text">
+                <a href="http://link">http://www.iamawesome.com</a>
+              </p>
+              <button type="button" class="btn btn-success" id="getThis">Get!</button>
+              <button type="button" class="btn btn-success" id="updateThis">Update!</button>
+              <button type="button" class="btn btn-success" id="deleteThis">Delete!</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div>
         <p id="output"></p>
       </div>
     </div>
   </div>
-  <div>
-    <table class="table">
-      <thead>
-        <tr style="visibility:hidden">
-          <th scope="col"></th>
-          <th scope="col" style="text-align:center"></th>
-          <th scope="col" style="text-align:center"></th>
-          <th scope="col" style="text-align:center"></th>
-          <th scope="col" style="text-align:center"></th>
-        </tr>
-      </thead>
-      <tbody id="cBody">
-        <tr>
-          <th class="align-middle" scope="row">Add</th>
-          <td>
-            <label class="custom-file">
-              <input type="file" id="fileChooser" style="width:300px"/>
-              <span class="custom-file-control"/>
-            </label>
-          </td>
-          <td><input id="cTitleValue" placeholder="File Name" class="form-control" type="text" /></td>
-          <td id="cLinkValue" class="align-middle">Link to File</td>
-          <td><button type="button" class="btn btn-success" id="putThis">Upload</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
   <script>
+    <!-- This script contains javascript that is ALWAYS running in the background-->
+
     var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
     var appId = '1758918304408327'; //from facebook
     try
@@ -108,6 +108,182 @@
       //window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
     }
 
+    window.fbAsyncInit = function()
+    {
+      FB.init(
+      {
+        appId: appId,
+        cookie: true, // enable cookies to allow the server to access the session
+        xfbml: true, // parse social plugins on this page
+        version: 'v2.10' // use graph api version 2.10
+      });
+      FB.getLoginStatus(function(response)
+      {
+        statusChangeCallback(response);
+      });
+    };
+    // Load the SDK asynchronously
+    (function(d, s, id)
+    {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
+    AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+    var bucket = new AWS.S3(
+    {
+      params:
+      {
+        Bucket: bucketName
+      }
+    });
+
+    var fbUserId;
+    var params;
+    var titleText;
+    var fileName;
+    var dynamodb = null;
+    var docClient = null;
+    var appId = '1758918304408327'; //from facebook
+    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
+    var resultData = null;
+
+    document.getElementById('putThis').onclick = function()
+    {
+      var file = document.getElementById("fileChooser").files[0];
+      fileName = document.getElementById("fileChooser").files[0].name;
+      //Odds of having the exact same name is 1 and 100 quintillion.
+      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
+      newName = newName.toString();
+      var currentUrl = window.location.href;
+      var baseUrl = currentUrl.substring(0, 55);
+      var fileUrl = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
+
+      document.getElementById('cLinkValue').innerHTML = fileUrl
+      var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
+
+      var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
+      AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+
+      var bucket = new AWS.S3(
+      {
+        params:
+        {
+          Bucket: bucketName
+        }
+      });
+
+      var params = {
+        Key: objkey,
+        ContentType: file.type,
+        Body: file,
+        ACL: 'public-read'
+      };
+
+      bucket.putObject(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err);
+        }
+        else
+        {
+
+        }
+      });
+
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+
+      var cTitleValue = document.getElementById('cTitleValue').value;
+      console.log(account.User_Id);
+      params = {
+        Item:
+        {
+          fileName: newName,
+          User_Id: account.User_Id,
+          title: cTitleValue
+        },
+        TableName: 'VIP_Table'
+      };
+      docClient.put(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err);
+        }
+        else
+        {
+          resultData = data;
+          console.log(resultData);
+        }
+      });
+    }
+
+    document.getElementById('getThis').onclick = function() {
+
+    }
+  </script>
+  <script>
+    <!-- This script contains functions that will be called/executed upon some sort of interaction -->
+
+    function responsiveFileName(inputSource)
+    {
+      var file = document.getElementById(inputSource).files[0].name;
+      document.getElementById(inputSource + 'span').innerHTML = file;
+    }
+
+    function listObjs()
+    {
+      console.log("Listing Objects");
+      dynamodb = new AWS.DynamoDB(
+      {
+        region: 'us-east-2'
+      });
+      docClient = new AWS.DynamoDB.DocumentClient(
+      {
+        service: dynamodb
+      });
+
+      params = {
+        ProjectionExpression: 'fileName,User_Id,title',
+        ExpressionAttributeValues:
+        {
+          ':accountId':
+          {
+            S: account.User_Id
+          }
+        },
+        FilterExpression: "contains(User_Id,:accountId)",
+        TableName: 'VIP_Table'
+      };
+      docClient.scan(params, function(err, data)
+      {
+        if (err)
+        {
+          console.log(err);
+        }
+        else
+        {
+          data.Items.forEach(function(element, index, array)
+          {
+            console.log(element.title.S + " (" + element.fileName.S + ")");
+          });
+        }
+      });
+    }
+
+    <!-- Login credentials and stuff -->
     function statusChangeCallback(response)
     {
       console.log('statusChangeCallback');
@@ -204,39 +380,6 @@
         statusChangeCallback(response);
       });
     }
-    window.fbAsyncInit = function()
-    {
-      FB.init(
-      {
-        appId: appId,
-        cookie: true, // enable cookies to allow the server to access the session
-        xfbml: true, // parse social plugins on this page
-        version: 'v2.10' // use graph api version 2.10
-      });
-      FB.getLoginStatus(function(response)
-      {
-        statusChangeCallback(response);
-      });
-    };
-    // Load the SDK asynchronously
-    (function(d, s, id)
-    {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s);
-      js.id = id;
-      js.src = "//connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-    var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
-    AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
-    var bucket = new AWS.S3(
-    {
-      params:
-      {
-        Bucket: bucketName
-      }
-    });
 
     function testAPI()
     {
@@ -247,140 +390,6 @@
         document.getElementById('status').innerHTML =
           'Thanks for logging in, ' + response.name + '!';
       });
-    }
-
-    function listObjs()
-    {
-      console.log("Listing Objects");
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-
-      params =
-      {
-        ProjectionExpression: 'fileName,User_Id,title',
-        ExpressionAttributeValues:
-        {
-          ':accountId':
-          {
-            S: account.User_Id
-          }
-        },
-        FilterExpression: "contains(User_Id,:accountId)",
-        TableName: 'VIP_Table'
-      };
-      docClient.scan(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-          data.Items.forEach(function(element, index, array)
-          {
-            console.log(element.title.S + " (" + element.fileName.S + ")");
-          });
-        }
-      });
-    }
-
-    var fbUserId;
-    var params;
-    var titleText;
-    var fileName;
-    var dynamodb = null;
-    var docClient = null;
-    var appId = '1758918304408327'; //from facebook
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
-    var resultData = null;
-
-    document.getElementById('putThis').onclick = function()
-    {
-      var file = document.getElementById("fileChooser").files[0];
-      fileName = document.getElementById("fileChooser").files[0].name;
-      //Odds of having the exact same name is 1 and 100 quintillion.
-      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
-      newName = newName.toString();
-      var currentUrl = window.location.href;
-      var baseUrl = currentUrl.substring(0, 55);
-      var fileUrl = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
-
-      document.getElementById('cLinkValue').innerHTML = fileUrl
-      var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
-
-      var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
-      AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
-
-      var bucket = new AWS.S3(
-      {
-        params:
-        {
-          Bucket: bucketName
-        }
-      });
-
-      var params = {
-        Key: objkey,
-        ContentType: file.type,
-        Body: file,
-        ACL: 'public-read'
-      };
-
-      bucket.putObject(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-
-        }
-      });
-
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-
-      var cTitleValue = document.getElementById('cTitleValue').value;
-      console.log(account.User_Id);
-      params =
-      {
-        Item:
-        {
-          fileName: newName,
-          User_Id: account.User_Id,
-          title: cTitleValue
-        },
-        TableName: 'VIP_Table'
-      };
-      docClient.put(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-          resultData = data;
-          console.log(resultData);
-        }
-      });
-    }
-
-    document.getElementById('getThis').onclick = function() {
-
     }
   </script>
 </body>

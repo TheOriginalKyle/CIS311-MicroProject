@@ -42,10 +42,10 @@
         <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar" />
       </div>
       <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
-        <label class="custom-file" style="padding-top:3" id="fileChooserLbl">
-            <input type="file" id="fileChooser" style="width:300px"/>
-            <span class="custom-file-control"/>
-          </label>
+        <label id="fileChooserlbl" class="custom-file" style="text-align:left; padding-top:3">
+          <input id="fileChooser" type="file" class="custom-file-input" onchange="responsiveFileName('fileChooser')" >
+          <span id="fileChooserspan" class="custom-file-control form-control-file" ></span>
+        </label>
       </div>
     </div>
     <div class="container">
@@ -81,7 +81,8 @@
           <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
         </div>
         <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
-        <button type="button" class="btn btn-success" onclick="createAccount(), fbLogin()" id="createBtn">Login with Facebook</button>
+        <button type="button" class="btn btn-success" id="createBtn" onclick="createAccount()">Create Account</button>
+        <button type="button" class="btn btn-primary" onclick="fbLogin()" id="fbBtn">Login with Facebook</button>
       </form>
     </div>
   </div>
@@ -449,7 +450,8 @@
     document.getElementById("loginBtn").innerHTML = "Login";
     document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
     document.getElementById("loginBtn").setAttribute("onClick", "");
-    document.getElementById("createBtn").setAttribute("onClick", "createAccount(), fbLogin()");
+    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
+    document.getElementById("createBtn").removeAttribute("disabled");
   }
 
   function enableBtn()
@@ -463,6 +465,12 @@
     {
       document.getElementById("loginBtn").removeAttribute("disabled");
     }
+  }
+
+  function responsiveFileName(inputSource)
+  {
+    var file = document.getElementById(inputSource).files[0].name;
+    document.getElementById(inputSource + 'span').innerHTML = file;
   }
 </script>
 
