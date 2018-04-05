@@ -12,466 +12,427 @@
   <!-- Iconic -->
   <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 
-  <!-- navmenu source -->
+  <!-- Navmenu Source -->
   <script src="./nav.js"></script>
+  
+  <!-- Aws Cognito -->
+  <script src="./amazon-cognito-identity.min.js"></script>
 
-  <!-- can't be shoved in nav.js cause weird stuff happens -->
+  <!-- AWS SDK and Facebook SDK -->
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
   <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
-
-  <!-- Aws cognito -->
-  <script src="./aws-cognito-sdk.min.js"></script>
-  <script src="./amazon-cognito-identity.min.js"></script>
 
 </head>
 
 <body>
+    <!-- create navigation menu -->
+    <script>nav();</script>
+    
+    <!-- Modify's navigation menu to set current page to active -->
+    <script>document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active");</script>
+    
+    <!-- Loads the Facebook SDK asynchronously for user auth -->
+    <script>
+        window.fbAsyncInit = function() 
+        {
+            FB.init(
+                    {
+                        appId            : '1758918304408327',
+                        autoLogAppEvents : true,
+                        xfbml            : true,
+                        version          : 'v2.12'
+                    });
+        };
+        (function(d, s, id)
+         {
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "https://connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'facebook-jssdk'));
 
-  <!-- create navigation menu -->
-  <script>
-    nav()
-  </script>
-  <!-- Modify's navigation menu to set current page to active -->
-  <script>
-    document.getElementById("navbardrop2").setAttribute("class", "nav-link dropdown-toggle active")
   </script>
 
   <div class="jumbotron jumbotron-fluid">
-    <div class="container" id="avatarInput" hidden>
-      <div class="d-flex p-2 justify-content-center" id="avatarDiv">
-        <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar" />
+      <div class="container" id="avatarInput" hidden>
+          <div class="d-flex p-2 justify-content-center" id="avatarDiv">
+              <img class="mr-3 rounded-circle" src="./open-iconic/svg/person.svg" style="width:150px;height:100px" id="userAvatar" />
+          </div>
+          <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
+              <label id="fileChooserlbl" class="custom-file" style="text-align:left; padding-top:3">
+                  <input id="fileChooser" type="file" class="custom-file-input" onchange="responsiveFileName('fileChooser')" >
+                  <span id="fileChooserspan" class="custom-file-control form-control-file" ></span>
+              </label>
+          </div>
       </div>
-      <div class="d-flex p-2 justify-content-center" id="fileChooserDiv">
-        <label id="fileChooserlbl" class="custom-file" style="text-align:left; padding-top:3">
-          <input id="fileChooser" type="file" class="custom-file-input" onchange="responsiveFileName('fileChooser')" >
-          <span id="fileChooserspan" class="custom-file-control form-control-file" ></span>
-        </label>
+      <div class="container">
+          <form id="form-div">
+              <div class="form-group" id="unameDiv">
+                  <label for="uname" id="unameLbl">Username</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
+                  <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
+              </div>
+              <div class="form-group" id="firstNameDiv" hidden>
+                  <label for="firstName" id="firstNameLbl">*First Name</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
+                  <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
+              </div>
+              <div class="form-group" id="lastNameDiv" hidden>
+                  <label for="lastName" id="lastNameLbl">*Last Name</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
+                  <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
+              </div>
+              <div class="form-group" id="emailDiv" hidden>
+                  <label for="email">*Email address</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
+                  <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()" />
+              </div>
+              <div class="form-group" id="password1Div">
+                  <label for="password1" id="password1Lbl">Password</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
+                  <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()" />
+              </div>
+              <div class="form-group" id="retypeDiv" hidden>
+                  <label for="retype">*Re-type Password</label>
+                  <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
+                  <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
+              </div>
+              <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
+              <button type="button" class="btn btn-success" id="createBtn" onclick="createAccount()">Create Account</button>
+              <button type="button" class="btn btn-primary" onclick="fbLogin()" id="fbBtn">Login with Facebook</button>
+          </form>
       </div>
-    </div>
-    <div class="container">
-      <form id="form-div">
-        <div class="form-group" id="unameDiv">
-          <label for="uname" id="unameLbl">Username</label>
-          <div class="alert alert-warning" role="alert" id="invalid_unameDiv" hidden>Cannot be blank!</div>
-          <input type="username" class="form-control" id="uname" aria-describedby="usernameHelp" placeholder="BeefyUnicorn" oninput="notBlank('uname', true), enableBtn()">
-        </div>
-        <div class="form-group" id="firstNameDiv" hidden>
-          <label for="firstName" id="firstNameLbl">*First Name</label>
-          <div class="alert alert-warning" role="alert" id="invalid_firstNameDiv" hidden>Cannot be blank!</div>
-          <input type="given-name" class="form-control" id="firstName" aria-describedby="usernameHelp" placeholder="Ted" oninput="notBlank('firstName', true), enableBtn()">
-        </div>
-        <div class="form-group" id="lastNameDiv" hidden>
-          <label for="lastName" id="lastNameLbl">*Last Name</label>
-          <div class="alert alert-warning" role="alert" id="invalid_lastNameDiv" hidden>Cannot be blank!</div>
-          <input type="family-name" class="form-control" id="lastName" aria-describedby="usernameHelp" placeholder="Mosby" oninput="notBlank('lastName', true), enableBtn()">
-        </div>
-        <div class="form-group" id="emailDiv" hidden>
-          <label for="email">*Email address</label>
-          <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
-          <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableBtn()" />
-        </div>
-        <div class="form-group" id="password1Div">
-          <label for="password1" id="password1Lbl">Password</label>
-          <div class="alert alert-warning" role="alert" id="invalid_password1Div" hidden>Cannot be blank!</div>
-          <input type="password" class="form-control" id="password1" rows="1" placeholder="**********" oninput="notBlank('password1', true), enableBtn()" />
-        </div>
-        <div class="form-group" id="retypeDiv" hidden>
-          <label for="retype">*Re-type Password</label>
-          <div class="alert alert-warning" role="alert" id="invalid_retypeDiv" hidden>Passwords are not the same!</div>
-          <input type="password" class="form-control" id="retype" rows="1" placeholder="**********" oninput="isEqual('password1', 'retype', true), enableBtn()">
-        </div>
-        <button type="button" class="btn btn-primary" id="loginBtn" onclick="login(), fbLogin()" disabled>Login</button>
-        <button type="button" class="btn btn-success" id="createBtn" onclick="createAccount()">Create Account</button>
-        <button type="button" class="btn btn-primary" onclick="fbLogin()" id="fbBtn">Login with Facebook</button>
-      </form>
-    </div>
+      <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="confirmationModalLbl">Please Confirm Your Email.</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div>
+                  <div class="modal-body">
+                      <div class="d-flex p-2 justify-content-center" id="avatarDiv">
+                          <img class="mr-3 rounded-circle" src="./open-iconic/svg/envelope-open.svg" style="width:150px;height:100px" />
+                      </div>
+                      <div class="alert alert-danger" role="alert" id="notConfirmedDiv" hidden>Our systems do not have your email listed as confirmed please try again!</div>
+                      <p> Before we can log you in please confirm your email by clicking the link in the Confirmation email we have sent to your inbox.</p>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" onClick="login()">Login</button>
+                  </div>
+              </div>
+          </div>
+      </div>
   </div>
 </body>
 
 <script>
-  var fbUserId;
-  // When using loose Javascript files:
-  var CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
 
-  function login()
-  {
-    if (notBlank('uname', false) == true && notBlank('password1', false) == true)
+    //Lets initialize Cognito before we even start doing anything.
+    var CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
+    AWS.config.region = 'us-east-2';
+
+    var poolData =
     {
-      var appId = '1758918304408327'; //from facebook
-      var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
-      //FB / AWS
-      FB.init(
-      {
-        appId: appId
-      });
-      FB.login(function(response)
-      {
-        if (response.authResponse)
+        UserPoolId : 'us-east-2_Yb705u1zm',
+        ClientId   : '4j9f4lsg9j0liimrsmdjmhlivc'
+    };
+
+    var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+            {
+                IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+            });
+
+    //When you select a file from the browser this displays the name.
+    function responsiveFileName(inputSource)
+    {
+        var file = document.getElementById(inputSource).files[0].name;
+        document.getElementById(inputSource + 'span').innerHTML = file;
+    }
+
+    //If you don't give input it disables the button
+    function enableBtn()
+    {
+        if(notBlank('uname', false) == true && notBlank('password1', false))
         {
-          AWS.config.credentials = new AWS.WebIdentityCredentials(
-          { //WIF
-            RoleArn: roleArn,
-            ProviderId: 'graph.facebook.com',
-            WebIdentityToken: response.authResponse.accessToken
-          });
-          fbUserId = response.authResponse.userID;
-          console.log(fbUserId);
-          let account = {
-            User_Id: "",
-            Facebook_Id: "",
-            Email: "",
-            Given_Name: "",
-            Family_Name: "",
-            User_Photo: ""
-          };
-          account.Uname = document.getElementById("uname").value;
-          account.Facebook_Id = response.authResponse.userID;
-          var pswd = document.getElementById("password1").value;
-
-          var authenticationData = {
-            Username: account.Uname,
-            Password: pswd
-          };
-
-          var authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
-          var poolData = {
-            UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
-            ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
-          };
-          var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
-          var userData = {
-            Username: account.Uname,
-            Pool: userPool
-          };
-          var cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-          cognitoUser.authenticateUser(authenticationDetails,
-          {
-            onSuccess: function(result)
-            {
-              console.log('access token + ' + result.getAccessToken().getJwtToken());
-
-              //POTENTIAL: Region needs to be set if not already set previously elsewhere.
-              AWS.config.region = 'us-east-2';
-
-              AWS.config.credentials = new AWS.CognitoIdentityCredentials(
-              {
-                IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
-                Logins:
-                {
-                  // Change the key below according to the specific region your user pool is in.
-                  'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm': result.getIdToken().getJwtToken()
-                }
-              });
-
-              //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-              AWS.config.credentials.refresh((error) =>
-              {
-                if (error)
-                {
-                  console.error(error);
-                }
-                else
-                {
-                  // Instantiate aws sdk service objects now that the credentials have been updated.
-                  // example: var s3 = new AWS.S3();
-                  console.log('Successfully logged!');
-
-                  cognitoUser.getUserAttributes(function(err, result)
-                  {
-                    if (err)
-                    {
-                      alert(err);
-                      return;
-                    }
-                    for (i = 0; i < result.length; i++)
-                    {
-                      if (result[i].getName() == 'email')
-                      {
-                        account.Email = result[i].getValue()
-                      };
-                      if (result[i].getName() == 'given_name')
-                      {
-                        account.Given_Name = result[i].getValue()
-                      };
-                      if (result[i].getName() == 'family_name')
-                      {
-                        account.Family_Name = result[i].getValue()
-                      };
-                      if (result[i].getName() == 'picture')
-                      {
-                        account.User_Photo = result[i].getValue()
-                      };
-                      if (result[i].getName() == 'sub')
-                      {
-                        account.User_Id = result[i].getValue()
-                      };
-                    }
-                    setCookie("dumpsterfireAccount=", account, "365")
-                    window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
-                  });
-                }
-              });
-            },
-
-            onFailure: function(err)
-            {
-              alert(err);
-            },
-
-          });
+            document.getElementById('loginBtn').removeAttribute('disabled');
         }
         else
         {
-          console.log("Issue logging in");
+            document.getElementById('loginBtn').setAttribute('disabled', true);
         }
-        // Load the FB JS SDK asynchronously
-        (function(d, s, id)
-        {
-          var js, fjs = d.getElementsByTagName(s)[0];
-          if (d.getElementById(id))
-          {
-            return;
-          }
-          js = d.createElement(s);
-          js.id = id;
-          js.src = "https://connect.facebook.net/en_US/all.js";
-          fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-      });
-      //Check if valid account.
-      //Redirect Somewhere.
     }
-  }
 
-  function fbLogin()
-  {
-    var appId = '1758918304408327'; //from facebook
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS
-    //FB / AWS
-    FB.init(
+    //What happens when you push the login button.
+    function login()
     {
-      appId: appId
-    });
-    FB.login(function(response)
-    {
-      if (response.authResponse)
-      {
-        AWS.config.credentials = new AWS.WebIdentityCredentials(
-        { //WIF
-          RoleArn: roleArn,
-          ProviderId: 'graph.facebook.com',
-          WebIdentityToken: response.authResponse.accessToken
-        });
-        fbUserId = response.authResponse.userID;
-      }
-      else
-      {
-        console.log("Issue logging in");
-      }
-      // Load the FB JS SDK asynchronously
-      (function(d, s, id)
-      {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id))
+        <!-- Lets grab all of the users input -->
+        var uname = document.getElementById('uname').value;
+        var pswd  = document.getElementById('password1').value;
+
+        var authenticationData =
         {
-          return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://connect.facebook.net/en_US/all.js";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));
-    });
-  }
+            Username : uname,
+            Password : pswd,
+        };
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        var userData =
+        {
+            Username : uname,
+            Pool     : userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        cognitoUser.authenticateUser(authenticationDetails,
+                {
+                    onSuccess: function(result)
+                    {
+                        console.log('access token + ' + result.getAccessToken().getJwtToken());
 
-  function createAccount(uname, firstName, lastName, email, pswd)
-  {
-    if (notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
+                        AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                                {
+                                    IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                                    Logins         : 
+                                    {
+                                        'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm': result.getIdToken().getJwtToken()
+                                    }
+                                });
+                        //refreshes the credentials
+                        AWS.config.credentials.refresh((error) =>
+                                {
+                                    if (error)
+                                    {
+                                        alert(error.message);
+                                    }
+                                    else
+                                    {
+                                        //AWS stuff here
+                                        console.log('Successfully logged!');
+                                    }
+                                });
+                    },
+                    onFailure: function(err)
+                    {
+                        if(err.code == "UserNotConfirmedException")
+                        {
+                            console.log("User is not Confirmed.");
+                            $('#confirmationModal').modal('show');
+                            document.getElementById('notConfirmedDiv').removeAttribute('hidden');
+
+                        }
+                        else
+                        {
+                            alert(err.message);
+                        }
+                    },
+                });
+    }
+
+    //What happens when you push the create account button.
+    function createAccount()
     {
-      var pswd = document.getElementById("password1").value;
-      let account = {
-        User_Id: "",
-        Facebook_Id: "",
-        Email: "",
-        Given_Name: "",
-        Family_Name: "",
-        User_Photo: ""
-      };
-      account.Uname = document.getElementById("uname").value;
-      account.Facebook_Id = fbUserId;
-      account.Email = document.getElementById("email").value;
-      account.Given_Name = document.getElementById("firstName").value;
-      account.Family_Name = document.getElementById("lastName").value;
-      var file = document.getElementById("fileChooser").files[0];
-      if (file)
-      {
-        fileName = document.getElementById("fileChooser").files[0].name;
-        //Odds of having the exact same name is 1 and 100 quintillion.
-        var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
-        var currentUrl = window.location.href;
-        var baseUrl = currentUrl.substring(0, 55);
+        //We can reasonably assume that if one field is hidden the button hasn't been pressed ever.
+        if(document.getElementById('firstNameDiv').hasAttribute('hidden'))
+        {
+            //Display the form.
+            document.getElementById('avatarInput').removeAttribute('hidden');
+            document.getElementById('firstNameDiv').removeAttribute('hidden');
+            document.getElementById('lastNameDiv').removeAttribute('hidden');
+            document.getElementById('emailDiv').removeAttribute('hidden');
+            document.getElementById('retypeDiv').removeAttribute('hidden');
+        }
 
-        account.User_Photo = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
-        var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
+        //Lets validate all of our input before starting Account Creation.
+        else if(notBlank('firstName', true) == true &&
+               notBlank('lastName', true)  == true &&
+               notBlank('email', true)     == true &&
+               notBlank('retype', true)    == true &&
+               notBlank('password1', true) == true &&
+               notBlank('uname', true)     == true &&
+               isEqual('password1', 'retype') == true)
+        {
+            cognitoRegister();
+        }
 
-        var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
-        AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
+    }
+
+    //Actually handles the login.
+    function cognitoRegister()
+    {
+        <!-- Lets grab all of the inputs -->
+        var uname     = document.getElementById('uname').value;
+        var firstName = document.getElementById('firstName').value;
+        var lastName  = document.getElementById('lastName').value;
+        var email     = document.getElementById('email').value;
+        var pswd      = document.getElementById('password1').value;
+        var file = document.getElementById('fileChooser').files[0];
+        var picture = '';
+        if (file)
+        {
+            var fileName = file.name;
+            //Odds of the same fileName is 1 and 100 quintillion
+            var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
+            
+            var objkey = 'userPhotos/' + newName;
+            uploadPhoto(objkey, file);
+
+            picture = objkey;
+        }else
+        {
+            picture = 'userPhotos/person.svg';
+        }
+        
+        var attributeList = [];
+        
+        var dataGivenName =
+        {
+            Name : 'given_name',
+            Value: firstName
+        };
+        var dataFamilyName =
+        {
+            Name : 'family_name',
+            Value: lastName
+        };
+        var dataEmail =
+        {
+            Name : 'email',
+            Value: email 
+        };
+        var dataPicture =
+        {
+            Name: 'picture',
+            Value: picture
+        };
+
+        var attributeGivenName = new AmazonCognitoIdentity.CognitoUserAttribute(dataGivenName);
+        var attributeFamilyName = new AmazonCognitoIdentity.CognitoUserAttribute(dataFamilyName);
+        var attributeEmail = new AmazonCognitoIdentity.CognitoUserAttribute(dataEmail);
+        var attributePicture = new AmazonCognitoIdentity.CognitoUserAttribute(dataPicture);
+
+        attributeList.push(attributeGivenName);
+        attributeList.push(attributeFamilyName);
+        attributeList.push(attributeEmail);
+        attributeList.push(attributePicture);
+
+        userPool.signUp(uname, pswd, attributeList, null, function(err, result)
+                {
+                    if(err)
+                    {
+                        alert(err.message);
+                        return;
+                    }
+                    else
+                    {
+                        cognitoUser = result.user;
+                        console.log('Username is ' + cognitoUser.getUsername());
+
+                        $('#confirmationModal').modal(
+                                {
+                                    keyboard: true,
+                                    focus   : true,
+                                    show    : true
+                                });
+                    }
+                });
+
+    }
+
+    //Actually handles the login.
+    function fbLogin()
+    {
+        FB.getLoginStatus(function(response) 
+                {
+                    if (response.status === 'connected') 
+                    {
+                      console.log('Logged in to Facebook.');
+
+                      AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                              {
+                                  IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                                  Logins:
+                                  {
+                                      'graph.facebook.com': response.authResponse.accessToken
+                                  }
+                              });
+                      
+                      //Obtain AWS credentials
+                      AWS.config.credentials.get(function()
+                              {
+                                  //Access AWS resources here.
+                              });
+                    }
+                    else
+                    {
+                        FB.login(function (response) 
+                                {
+                                    if (response.authResponse)
+                                    {
+                                        console.log('Logged into Facebook!');
+
+                                        //Add the Facebook access token to the credentials map.
+                                        AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                                                {
+                                                    IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                                                    Logins : 
+                                                    {
+                                                        'graph.facebook.com': response.authResponse.accessToken
+                                                    }
+                                                });
+                                        
+                                        //Obtains AWS credentials
+                                        AWS.config.credentials.get(function()
+                                                {
+                                                    //Access AWS resources here
+                                                });
+                                    }
+                                    else
+                                    {
+                                        alert('There was a problem loggin you in.');
+                                    }
+                                });
+                    }
+                });
+    }
+
+    //Uploads the users account photo to s3 storage
+    function uploadPhoto(objkey, file)
+    {
+        var bucketName = 'dumpsterfire';
+        AWS.config.region = 'us-east-2';
 
         var bucket = new AWS.S3(
+                {
+                    params:
+                    {
+                        Bucket: bucketName
+                    }
+                });
+        
+        var params =
         {
-          params:
-          {
-            Bucket: bucketName
-          }
-        });
-
-        var params = {
-          Key: objkey,
-          ContentType: file.type,
-          Body: file,
-          ACL: 'public-read'
+            Key: objkey,
+            ContentType: file.type,
+            Body: file,
+            ACL: 'public-read'
         };
 
         bucket.putObject(params, function(err, data)
-        {
-          if (err)
-          {
-            console.log(err);
-          }
-          else
-          {
-
-          }
-        });
-      }
-
-      AWSCognito.config.region = 'us-east-2';
-      var poolData = {
-        UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
-        ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
-      };
-      var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
-
-      var attributeList = [];
-
-      var dataEmail = {
-        Name: 'email',
-        Value: account.Email
-      };
-
-      var dataGivenName = {
-        Name: 'given_name',
-        Value: account.Given_Name
-      };
-
-      var dataFamilyName = {
-        Name: 'family_name',
-        Value: account.Family_Name
-      };
-
-      var dataPicture = {
-        Name: 'picture',
-        Value: account.User_Photo
-      };
-
-      var attributeEmail = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail);
-      var attributeGivenName = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataGivenName);
-      var attributeFamilyName = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataFamilyName);
-      var attributePicture = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataPicture);
-
-      attributeList.push(attributeEmail);
-      attributeList.push(attributeGivenName);
-      attributeList.push(attributeFamilyName);
-      attributeList.push(attributePicture);
-
-      userPool.signUp(account.Uname, pswd, attributeList, null, function(err, result)
-      {
-        if (err)
-        {
-          alert(err);
-          return;
-        }
-        else
-        {
-          cognitoUser = result.user;
-          var cognitoUser = userPool.getCurrentUser();
-
-          if (cognitoUser != null)
-          {
-            cognitoUser.getSession(function(err, result)
-            {
-              if (result)
-              {
-                console.log('You are now logged in.');
-
-                // Add the User's Id Token to the Cognito credentials login map.
-                AWS.config.credentials = new AWS.CognitoIdentityCredentials(
                 {
-                  IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
-                  Logins:
-                  {
-                    'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': result.getIdToken().getJwtToken()
-                  }
+                    if (err)
+                    {
+                        console.log(err);
+                    }
+                    else
+                    {
+                        console.log('Upload Success!');
+                    }
                 });
-
-                setCookie("dumpsterfireAccount=", account, "365")
-                window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/vip.html";
-              }
-            });
-          }
-        }
-      });
     }
 
-    document.getElementById("avatarInput").removeAttribute("hidden");
-    document.getElementById("emailDiv").removeAttribute("hidden");
-    document.getElementById("retypeDiv").removeAttribute("hidden");
-    document.getElementById("firstNameDiv").removeAttribute("hidden");
-    document.getElementById("lastNameDiv").removeAttribute("hidden");
-    document.getElementById("unameLbl").innerHTML = "*Username";
-    document.getElementById("password1Lbl").innerHTML = "*Password";
-    document.getElementById("loginBtn").innerHTML = "I already have an account.";
-    document.getElementById("loginBtn").setAttribute("class", "btn btn-link");
-    document.getElementById("loginBtn").setAttribute("onClick", "goBack()");
-    document.getElementById("loginBtn").removeAttribute("disabled");
-    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
-    document.getElementById("createBtn").setAttribute("disabled", "");
-  }
-
-  function goBack()
-  {
-    document.getElementById("avatarInput").setAttribute("hidden", "");
-    document.getElementById("emailDiv").setAttribute("hidden", "");
-    document.getElementById("retypeDiv").setAttribute("hidden", "");
-    document.getElementById("firstNameDiv").setAttribute("hidden", "");
-    document.getElementById("lastNameDiv").setAttribute("hidden", "");
-    document.getElementById("unameLbl").innerHTML = "Username";
-    document.getElementById("password1Lbl").innerHTML = "Password";
-    document.getElementById("loginBtn").innerHTML = "Login";
-    document.getElementById("loginBtn").setAttribute("class", "btn btn-primary");
-    document.getElementById("loginBtn").setAttribute("onClick", "");
-    document.getElementById("createBtn").setAttribute("onClick", "createAccount()");
-    document.getElementById("createBtn").removeAttribute("disabled");
-  }
-
-  function enableBtn()
-  {
-    if (notBlank('uname', false) == true && notBlank('firstName', false) == true && notBlank('lastName', false) == true && validEmail(false) == true && isEqual('password1', 'retype', false) == true)
-    {
-      document.getElementById("createBtn").removeAttribute("disabled");
-      return true;
-    }
-    if (notBlank('uname', false) == true && notBlank('password1', false) == true)
-    {
-      document.getElementById("loginBtn").removeAttribute("disabled");
-    }
-  }
-
-  function responsiveFileName(inputSource)
-  {
-    var file = document.getElementById(inputSource).files[0].name;
-    document.getElementById(inputSource + 'span').innerHTML = file;
-  }
 </script>
 
 <!-- validInput.js -->

@@ -29,7 +29,7 @@
 
   <!-- create navigation menu -->
   <script>
-    nav()
+    nav();
   </script>
   <!-- Modify's navigation menu to set current page to active -->
   <script>
@@ -48,9 +48,9 @@
               <h5 class="card-title">Upload a File</h5>
               <img class="rounded-circle p-2" src="https://vignette.wikia.nocookie.net/valkyriecrusade/images/b/b5/Reddit-The-Official-App-Icon.png/revision/latest?cb=20161004160133" style="height:150px" />
               <p class="card-text">
-                <label id="cFilelbl" class="custom-file" style="text-align:left">
-                  <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
-                  <span id="cFilespan" class="custom-file-control form-control-file" ></span>
+                <label id="cFilelbl" class="custom-file" style="text-align:left">
+                    <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
+                    <span id="cFilespan" class="custom-file-control form-control-file" ></span>
                 </label>
               </p>
               <p class="card-text">
@@ -154,8 +154,8 @@
 
     document.getElementById('putThis').onclick = function()
     {
-      var file = document.getElementById("fileChooser").files[0];
-      fileName = document.getElementById("fileChooser").files[0].name;
+      var file = document.getElementById("cFile").files[0];
+      fileName = document.getElementById("cFile").files[0].name;
       //Odds of having the exact same name is 1 and 100 quintillion.
       var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
       newName = newName.toString();
