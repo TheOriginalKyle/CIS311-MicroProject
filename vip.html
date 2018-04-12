@@ -1,410 +1,636 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        <!-- Bootstrap 4 CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    
+        <!-- Iconic -->
+        <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 
-<head>
-  <title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- navmenu source -->
+        <script src="./nav.js"></script>
 
-  <!-- Bootstrap 4 CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <!-- Facebook SDK -->
+        <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
 
-  <!-- Iconic -->
-  <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+        <!-- Amazon Cognito SDK must be loaded first! -->
+        <script src="./amazon-cognito-identity.min.js"></script>
+        <!-- Amazon SDK -->
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.222.1.min.js"></script>
+    </head>
+    
+    <body>
+        <!-- create navigation menu -->
+        <script>nav();</script>
+        <!-- Modify's navigation menu to set current page to active -->
+        <script>document.getElementById("vipPg").setAttribute("class", "nav-link active")</script>
+        
+        <!-- Loads the Facebook SDK asynchronously for user auth -->
+        <script>
+        window.fbAsyncInit = function() 
+            {
+                FB.init(
+                        {
+                            appId            : '1758918304408327',
+                            autoLogAppEvents : true,
+                            xfbml            : true,
+                            version          : 'v2.12'
+                        });
+            };
+        (function(d, s, id)
+         {
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "https://connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+         }(document, 'script', 'facebook-jssdk'));
+        </script>
 
-  <!-- navmenu source -->
-  <script src="./nav.js"></script>
-
-  <!-- can't be shoved in nav.js cause weird stuff happens -->
-  <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
-
-  <!-- Aws cognito, must be in this order-->
-  <script src="./aws-cognito-sdk.min.js"></script>
-  <script src="./amazon-cognito-identity.min.js"></script>
-  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
-
-</head>
-
-<body>
-
-  <!-- create navigation menu -->
-  <script>
-    nav();
-  </script>
-  <!-- Modify's navigation menu to set current page to active -->
-  <script>
-    document.getElementById("vipPg").setAttribute("class", "nav-link active")
-  </script>
-
-  <!-- Put's everything in a nice perdy jumbotron -->
-  <div class="jumbotron jumbotron-fluid">
-    <div class="container">
-      <h3 style="text-align:center">AwsCrud Test I/O</h3>
-      <p id="status"></p>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="card text-center">
-            <div class="card-body">
-              <h5 class="card-title">Upload a File</h5>
-              <img class="rounded-circle p-2" src="https://vignette.wikia.nocookie.net/valkyriecrusade/images/b/b5/Reddit-The-Official-App-Icon.png/revision/latest?cb=20161004160133" style="height:150px" />
-              <p class="card-text">
-                <label id="cFilelbl" class="custom-file" style="text-align:left">
-                    <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
-                    <span id="cFilespan" class="custom-file-control form-control-file" ></span>
-                </label>
-              </p>
-              <p class="card-text">
-                <input id="cTitleValue" class="form-control" type="text" placeholder="FileName" />
-              </p>
-              <p class="card-text">
-                <a href="http://link">http://www.iamawesome.com</a>
-              </p>
-              <button type="button" class="btn btn-success" id="putThis">Upload</button>
+        <!-- Put's everything in a nice perdy jumbotron -->
+        <div id="jumbotron" class="jumbotron jumbotron-fluid">
+                <h1 style="text-align:center">Cloud Storage</h1>
+                <p id="status"></p>
+                <div class="d-flex flex-wrap justify-content-center" id="myFlexBox">
+                    <div class="p-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Upload a File</h5>
+                                <img class="p-2" src="./open-iconic/svg/cloud.svg" style="height:150px" />
+                                <p class="card-text">
+                                <label id="cFilelbl" class="custom-file" style="text-align:left">
+                                    <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
+                                    <span id="cFilespan" class="custom-file-control form-control-file" ></span>
+                                </label>
+                                </p>
+                                <p class="card-text">
+                                <input id="cFileTitleValue" class="form-control" type="text" placeholder="Title" />
+                                </p>
+                                <p class="card-text">
+                                <a href="http://link">http://www.iamawesome.com</a>
+                                </p>
+                                <button type="button" class="btn btn-success" id="putThis" onClick="putThis('cFile')">Upload</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <p id="output"></p>
+                </div>
             </div>
-          </div>
         </div>
-        <div class="col-sm-6">
-          <div class="card text-center">
-            <div class="card-body">
-              <h5 class="card-title">FileName</h5>
-              <img class="rounded-circle p-2" src="https://vignette.wikia.nocookie.net/valkyriecrusade/images/b/b5/Reddit-The-Official-App-Icon.png/revision/latest?cb=20161004160133" style="height:150px" />
-              <p class="card-text">
-                <label id="rudFilelbl" class="custom-file" style="text-align:left">
-                  <input id="rudFile" type="file" class="custom-file-input" onchange="responsiveFileName('rudFile')" >
-                  <span id="rudFilespan" class="custom-file-control form-control-file" ></span>
-                </label>
-              </p>
-              <p class="card-text">
-                <input id="rudTitleValue" class="form-control" type="text" placeholder="FileName" />
-              </p>
-              <p class="card-text">
-                <a href="http://link">http://www.iamawesome.com</a>
-              </p>
-              <button type="button" class="btn btn-success" id="getThis">Get!</button>
-              <button type="button" class="btn btn-success" id="updateThis">Update!</button>
-              <button type="button" class="btn btn-success" id="deleteThis">Delete!</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <p id="output"></p>
-      </div>
-    </div>
-  </div>
-  <script>
-    <!-- This script contains javascript that is ALWAYS running in the background-->
+    <script>
 
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role'; //from AWS IAM
-    var appId = '1758918304408327'; //from facebook
-    try
-    {
-      var account = getCookie("dumpsterfireAccount");
-      console.log(account);
-    }
-    catch (err)
-    {
-      console.log(err);
-      //window.location.href = "http://dumpsterfire.s3-website.us-east-2.amazonaws.com/login.html";
-    }
-
-    window.fbAsyncInit = function()
-    {
-      FB.init(
-      {
-        appId: appId,
-        cookie: true, // enable cookies to allow the server to access the session
-        xfbml: true, // parse social plugins on this page
-        version: 'v2.10' // use graph api version 2.10
-      });
-      FB.getLoginStatus(function(response)
-      {
-        statusChangeCallback(response);
-      });
-    };
-    // Load the SDK asynchronously
-    (function(d, s, id)
-    {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s);
-      js.id = id;
-      js.src = "//connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-    var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
-    AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
-    var bucket = new AWS.S3(
-    {
-      params:
-      {
-        Bucket: bucketName
-      }
-    });
-
-    var fbUserId;
-    var params;
-    var titleText;
-    var fileName;
-    var dynamodb = null;
-    var docClient = null;
-    var appId = '1758918304408327'; //from facebook
-    var roleArn = 'arn:aws:iam::398804394159:role/User_Table_Role';
-    var resultData = null;
-
-    document.getElementById('putThis').onclick = function()
-    {
-      var file = document.getElementById("cFile").files[0];
-      fileName = document.getElementById("cFile").files[0].name;
-      //Odds of having the exact same name is 1 and 100 quintillion.
-      var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
-      newName = newName.toString();
-      var currentUrl = window.location.href;
-      var baseUrl = currentUrl.substring(0, 55);
-      var fileUrl = baseUrl + 'facebook-' + account.Facebook_Id + '/' + newName;
-
-      document.getElementById('cLinkValue').innerHTML = fileUrl
-      var objkey = 'facebook-' + account.Facebook_Id + '/' + newName;
-
-      var bucketName = 'dumpsterfire'; //CHANGE TO YOUR S3 BUCKET NAME
-      AWS.config.region = 'us-east-2'; //VERIFY YOUR S3 BUCKET REGION
-
-      var bucket = new AWS.S3(
-      {
-        params:
-        {
-          Bucket: bucketName
-        }
-      });
-
-      var params = {
-        Key: objkey,
-        ContentType: file.type,
-        Body: file,
-        ACL: 'public-read'
-      };
-
-      bucket.putObject(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-
-        }
-      });
-
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-
-      var cTitleValue = document.getElementById('cTitleValue').value;
-      console.log(account.User_Id);
-      params = {
-        Item:
-        {
-          fileName: newName,
-          User_Id: account.User_Id,
-          title: cTitleValue
-        },
-        TableName: 'VIP_Table'
-      };
-      docClient.put(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-          resultData = data;
-          console.log(resultData);
-        }
-      });
-    }
-
-    document.getElementById('getThis').onclick = function() {
-
-    }
-  </script>
-  <script>
-    <!-- This script contains functions that will be called/executed upon some sort of interaction -->
-
-    function responsiveFileName(inputSource)
-    {
-      var file = document.getElementById(inputSource).files[0].name;
-      document.getElementById(inputSource + 'span').innerHTML = file;
-    }
-
-    function listObjs()
-    {
-      console.log("Listing Objects");
-      dynamodb = new AWS.DynamoDB(
-      {
-        region: 'us-east-2'
-      });
-      docClient = new AWS.DynamoDB.DocumentClient(
-      {
-        service: dynamodb
-      });
-
-      params = {
-        ProjectionExpression: 'fileName,User_Id,title',
-        ExpressionAttributeValues:
-        {
-          ':accountId':
-          {
-            S: account.User_Id
-          }
-        },
-        FilterExpression: "contains(User_Id,:accountId)",
-        TableName: 'VIP_Table'
-      };
-      docClient.scan(params, function(err, data)
-      {
-        if (err)
-        {
-          console.log(err);
-        }
-        else
-        {
-          data.Items.forEach(function(element, index, array)
-          {
-            console.log(element.title.S + " (" + element.fileName.S + ")");
-          });
-        }
-      });
-    }
-
-    <!-- Login credentials and stuff -->
-    function statusChangeCallback(response)
-    {
-      console.log('statusChangeCallback');
-      console.log(response);
-      // The response object is returned with a status field that lets the
-      // app know the current login status of the person.
-      // Full docs on the response object can be found in the documentation
-      // for FB.getLoginStatus().
-      if (response.status === 'connected')
-      {
-        // Logged into your app and Facebook.
-        testAPI();
-        var poolData = {
-          UserPoolId: 'us-east-2_Yb705u1zm', // Your user pool id here
-          ClientId: '4j9f4lsg9j0liimrsmdjmhlivc' // Your client id here
-        };
-        var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+        <!-- Sets the AWS region -->
+        AWS.config.region = 'us-east-2';
+        
+        <!-- Preps Amazon Cognito -->
+        var CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
+        var poolData =
+            {
+                UserPoolId : 'us-east-2_Yb705u1zm',
+                ClientId   : '4j9f4lsg9j0liimrsmdjmhlivc'
+            };
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
         var cognitoUser = userPool.getCurrentUser();
+        
+        var identityId;
 
-        if (cognitoUser != null)
+        <!-- Lets retrieve the credentials in user storage -->
+        try
         {
-          cognitoUser.getSession(function(err, session)
-          {
-            if (err)
-            {
-              alert(err);
-              return;
-            }
-            console.log('session validity: ' + session.isValid());
-
-            // NOTE: getSession must be called to authenticate user before calling getUserAttributes
-            cognitoUser.getUserAttributes(function(err, attributes)
-            {
-              if (err)
-              {
-                // Handle error
-              }
-              else
-              {
-                // Do something with attributes
-              }
-            });
-
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
-            {
-              IdentityPoolId: 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19', // your identity pool id here
-              Logins:
-              {
-                // Change the key below according to the specific region your user pool is in.
-                'cognito-idp.us-east-2.amazonaws.com/us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19': session.getIdToken().getJwtToken()
-              }
-            });
-
-
-
-            // Instantiate aws sdk service objects now that the credentials have been updated.
-            // example: var s3 = new AWS.S3();
-
-            bucket.config.credentials = new AWS.WebIdentityCredentials(
-            { //WIF
-              ProviderId: 'graph.facebook.com',
-              RoleArn: roleArn,
-              WebIdentityToken: response.authResponse.accessToken
-            });
-            // Check if the facebook ID in the cookie is correct
-            if (account.Facebook_Id = response.authResponse.userID)
-            {
-              AWS.config.credentials = new AWS.WebIdentityCredentials(
-              { //WIF
-                RoleArn: roleArn,
-                ProviderId: 'graph.facebook.com',
-                WebIdentityToken: response.authResponse.accessToken
-              });
-              listObjs();
-            }
-          });
+            identityId = cognitoUserPoolStorage();
         }
-      }
-      else
-      {
-        // The person is not logged into your app or we are unable to tell.
-        document.getElementById('status').innerHTML = 'Please log ' +
-          'into this app.';
-      }
-    }
+        catch(err)
+        {
+            console.log(err);
+        }
+        try
+        {
+            FBuserStorage();
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
 
-    // This function is called when someone finishes with the Login
-    // Button.  See the onlogin handler attached to it in the sample
-    // code below.
-    function checkLoginState()
-    {
-      FB.getLoginStatus(function(response)
-      {
-        statusChangeCallback(response);
-      });
-    }
+        // Now we can create our bucket with the proper permissions
+        // given that this whole pages sole purpose to access this
+        // one bucket.
+        var bucketName = 'dumpsterfire';
+        var bucket = new AWS.S3(
+                {
+                    params:
+                    {
+                        Bucket: bucketName
+                    }
+                });        
 
-    function testAPI()
-    {
-      console.log('Welcome!  Fetching your information.... ');
-      FB.api('/me', function(response)
-      {
-        console.log('Successful login for: ' + response.name);
-        document.getElementById('status').innerHTML =
-          'Thanks for logging in, ' + response.name + '!';
-      });
-    }
-  </script>
-</body>
+        function responsiveFileName(inputSource)
+        {
+            var file = document.getElementById(inputSource).files[0].name;
+            document.getElementById(inputSource + 'span').innerHTML = file;
 
-<script>
-</script>
+            if(inputSource == 'cFile')
+            {
+                document.getElementById(inputSource + 'TitleValue').value = file;
+            }  
+        }
 
-<!-- validInput.js -->
-<script src="./validInput.js"></script>
+        function putThis(inputSource)
+        { 
 
-<!-- Dependencies at bottom for faster load time -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+            var TitleValue = document.getElementById(inputSource + 'TitleValue').value;
+            
+            var file = document.getElementById(inputSource).files[0];
+            
+            var fileName = file.name;
+            var re = fileName.slice((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1);
+            var ext = "." + re;
+            //Odds of the same fileName is 1 and 100 quintillion
+            var newName = Math.floor((Math.random() * 100000000000000000000) + 1).toString();
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+            var sub = identityId;
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+            var objkey = sub + '/' + newName;
+            if(typeof re !== 'undefined' && re !== null && re !== "" && re.match('\s') !== true)
+            {
+                newName = newName + ext;
+                objkey = objkey + ext;
+            }
+
+            create_docClient();
+
+            console.log(sub);
+            var params = 
+            {
+                Item:
+                {
+                    userId   : sub,
+                    fileName : newName,
+                    title    : TitleValue,
+                    originFn : fileName 
+                },
+                TableName    : 'cloudStorageTable'
+            };
+
+            docClient.put(params, function(err, data)
+                    {
+                        if(err)
+                        {
+                            console.log(err);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    });
+
+            params =
+            {
+                Key         : objkey,
+                ContentType : file.type,
+                Body        : file,
+                ACL         : 'public-read'
+            };
+            
+            bucket.putObject(params, function(err, data)
+                    {
+                        if(err)
+                        {
+                            console.log(err);
+                        }
+                        else
+                        {
+                            listObjects();
+                        }
+                    });
+        }
+
+        function updateThis(inputSource, originFile)
+        { 
+            var sub = identityId;
+            var file = '';
+            var titleValue = '';
+            console.log(inputSource);
+            console.log(originFile);
+            console.log(document.getElementById(inputSource).files.length > 0);
+            console.log(document.getElementById(inputSource + 'TitleValue').value !== '')
+            
+            if(document.getElementById(inputSource).files.length > 0)
+            {
+                file = document.getElementById(inputSource).files[0];
+                var fileName = file.name;
+                var re = fileName.slice((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1);
+                var ext = "." + re;
+                //Odds of the same fileName is 1 and 100 quintillion
+                var newName = Math.floor((Math.random() * 100000000000000000000) + 1).toString();
+                var objkey = sub + '/' + newName;
+                console.log('There is a file.');
+            }
+
+            if(document.getElementById(inputSource + 'TitleValue').value !== '');
+            {
+                titleValue = document.getElementById(inputSource + 'TitleValue').value;
+                console.log('titleValue = ' + titleValue);
+            }
+
+            if(file !== '' && titleValue !== '')
+            {
+                console.log('Works!');
+                putThis(inputSource);
+                deleteThis(originFile);
+            }else if(titleValue !== '' && file == '')
+            {
+                console.log('Lets update this somebitch!');
+                var params = 
+                {
+                    Key:
+                    {
+                        "userId"   : sub,
+                        "fileName" : originFile
+                    },
+                    UpdateExpression: "set #title = :title",
+                    ExpressionAttributeNames:
+                    {
+                        "#title"   : "title"
+                    },
+                    ExpressionAttributeValues:
+                    {
+                        ":title"   : titleValue
+                    },
+                    TableName : 'cloudStorageTable'
+                };
+
+                create_docClient();
+
+                docClient.update(params, function(err, data)
+                        {
+                            if (err)
+                            {
+                                console.log(err);
+                            }
+                            else
+                            {
+                                console.log(data);
+                                listObjects();
+                            }
+                        });
+
+
+            }else if(file !== '' && titleValue == '')
+            {
+                deleteThis(originFile);
+                
+                var params = 
+                {
+                    Key:
+                    {
+                        "userId"   : sub,
+                        "fileName" : originFile
+                    },
+                    UpdateExpression: "set #fileName = :fileName",
+                    ExpressionAttributeNames:
+                    {
+                        "#fileName"   : "fileName"
+                    },
+                    ExpressionAttributeValues:
+                    {
+                        ":fileName"   : newName
+                    },
+                    TableName : 'cloudStorageTable'
+                };
+
+                create_docClient();
+
+                docClient.update(params, function(err, data)
+                        {
+                            if (err)
+                            {
+                                console.log(err);
+                            }
+                            else
+                            {
+                                console.log(data);
+                                listObjects();
+                            }
+                        });
+
+                params =
+                {
+                    Key         : objkey,
+                    ContentType : file.type,
+                    Body        : file,
+                    ACL         : 'public-read'
+                };
+                
+                bucket.putObject(params, function(err, data)
+                        {
+                            if(err)
+                            {
+                                console.log(err);
+                            }
+                            else
+                            {
+                                console.log(data);
+                                listObjects();
+                            }
+                        });
+            }
+        }
+
+        function deleteThis(fileName)
+        {
+            create_docClient();
+            var sub = identityId;
+            var objkey = sub + '/' + fileName;
+
+            var params = 
+            {
+                Key:
+                {
+                    "userId"   : sub,
+                    "fileName" : fileName
+                },
+                TableName : 'cloudStorageTable'
+            };
+
+            docClient.delete(params, function(err, data)
+                    {
+                        if(err)
+                        {
+                            console.log(err);
+                        }
+                        else
+                        {
+                            console.log(data);
+                        }
+                    });
+
+            var s3 = new AWS.S3();
+            params = 
+            {
+                Bucket: "dumpsterfire",
+                Key: objkey
+            }
+
+            s3.deleteObject(params, function(err, data)
+                    {
+                        if(err)
+                        {
+                            console.log(err);
+                        }
+                        else
+                        {
+                            console.log(data);
+                            listObjects();
+                        }
+                    });
+        }
+
+        function listObjects()
+        {
+             console.log('Listing Objects');
+             
+             create_docClient(); 
+             
+             params =
+             {
+                 TableName: 'cloudStorageTable',
+                 KeyConditionExpression: "#accountId = :identityId",
+                 ExpressionAttributeNames:
+                 {
+                     "#accountId" : "userId"
+                 },
+                 ExpressionAttributeValues:
+                 {
+                     ":identityId" : identityId
+                 }
+             };
+
+             docClient.query(params, function(err, data)
+                     {
+                         if(err)
+                         {
+                             console.log(err);
+                         }
+                         else
+                         {
+                             console.log(data);
+                             
+                             var i=0;
+                             var row=0;
+                             data.Items.forEach(function(result)
+                                     {
+                                         //console.log(result.userId + " (" + result.fileName  + ")");
+                                         try
+                                         {
+                                             var node = document.getElementById("myFlexBox");
+                                             var oldChildId = "col" + i;
+                                             var oldChild = document.getElementById(oldChildId);
+                                             node.removeChild(oldChild);
+                                         }
+                                         catch
+                                         {}
+
+                                         var col = document.createElement("div");
+                                         col.setAttribute("class", "p-2");
+                                         var colId = "col" + i;
+                                         col.setAttribute("id", colId);
+
+                                         var card = document.createElement("div");
+                                         card.setAttribute("class", "card text-center");
+                                         col.appendChild(card);
+
+                                         var cardBody = document.createElement("div");
+                                         cardBody.setAttribute("class", "card-body");
+                                         card.appendChild(cardBody);
+
+                                         var cardTitle = document.createElement("h5");
+                                         cardTitle.setAttribute("class", "card-title");
+                                         cardTitle.innerHTML = result.title;
+                                         cardBody.appendChild(cardTitle);
+
+                                         var img = document.createElement("img");
+                                         img.setAttribute("class", "p-2");
+                                         img.setAttribute("src", "./open-iconic/svg/file.svg");
+                                         img.setAttribute("style", "height:150px");
+                                         cardBody.appendChild(img);
+
+                                         var cardText = document.createElement("p");
+                                         cardText.setAttribute("class", "card-text");
+                                         cardBody.appendChild(cardText);
+
+                                         var rudFilelbl = document.createElement("label");
+                                         var rudFilelblId = "rudFile" + i + "lbl";
+                                         rudFilelbl.setAttribute("id", rudFilelblId);
+                                         rudFilelbl.setAttribute("class", "custom-file");
+                                         rudFilelbl.setAttribute("style", "text-align:left");
+                                         cardText.appendChild(rudFilelbl);
+
+                                         var rudFileInput = document.createElement("input");
+                                         var rudFileInputId = "rud" + i + "File";
+                                         rudFileInput.setAttribute("id", rudFileInputId);
+                                         rudFileInput.setAttribute("type", "file");
+                                         rudFileInput.setAttribute("class", "custom-file-input");
+                                         var rudFileInputOnChange = "responsiveFileName('rud" + i + "File')";
+                                         rudFileInput.setAttribute("onchange", rudFileInputOnChange);
+                                         rudFilelbl.appendChild(rudFileInput);
+
+                                         var rudFileSpan = document.createElement("span");
+                                         var rudFileSpanId = "rud" + i + "Filespan";
+                                         rudFileSpan.setAttribute("id", rudFileSpanId);
+                                         rudFileSpan.setAttribute("class", "custom-file-control form-control-file");
+                                         rudFilelbl.appendChild(rudFileSpan);
+
+                                         var cardText2 = document.createElement("p");
+                                         cardText2.setAttribute("class", "card-text");
+                                         cardBody.appendChild(cardText2);
+
+                                         var rudTitleInput = document.createElement("input");
+                                         var rudTitleInputId = "rud" + i + "FileTitleValue";
+                                         rudTitleInput.setAttribute("id", rudTitleInputId);
+                                         rudTitleInput.setAttribute("class", "form-control");
+                                         rudTitleInput.setAttribute("type", "text");
+                                         rudTitleInput.setAttribute("placeholder", result.title);
+                                         cardText2.appendChild(rudTitleInput);
+
+                                         var cardText3 = document.createElement("p");
+                                         cardText3.setAttribute("class","card-text");
+                                         cardBody.appendChild(cardText3);
+
+                                         var link = document.createElement("a");
+                                         var linkLocation = "https://s3.us-east-2.amazonaws.com/dumpsterfire/" + identityId + "/" + result.fileName;
+                                         link.setAttribute("href", linkLocation);
+                                         link.innerHTML = "https://www.kyle-bohlander.tech/";
+                                         cardText3.appendChild(link);
+
+                                         var btnGroup = document.createElement("div");
+                                         btnGroup.setAttribute("class", "btn-group");
+                                         btnGroup.setAttribute("role", "group");
+                                         cardBody.appendChild(btnGroup);
+
+                                         var getBtn = document.createElement("a");
+                                         getBtn.setAttribute("type", "button");
+                                         getBtn.setAttribute("class","btn btn-success p-2");
+                                         getBtn.setAttribute("href", linkLocation);
+                                         getBtn.setAttribute("target", "_blank");
+                                         getBtn.innerHTML = "Get";
+                                         btnGroup.appendChild(getBtn);
+                                         
+                                         var updateBtn = document.createElement("button");
+                                         updateBtn.setAttribute("type", "button");
+                                         updateBtn.setAttribute("class", "btn btn-warning p-2");
+                                         var updateBtnOnClickValue = "updateThis('rud" + i + "File', '" + result.fileName + "')";
+                                         updateBtn.setAttribute("onclick", updateBtnOnClickValue);
+                                         updateBtn.innerHTML = "Update";
+                                         btnGroup.appendChild(updateBtn);
+
+                                         var deleteBtn = document.createElement("button");
+                                         deleteBtn.setAttribute("type", "button");
+                                         deleteBtn.setAttribute("class", "btn btn-danger p-2");
+                                         var deleteBtnOnClickValue = "deleteThis('" + result.fileName + "')";
+                                         deleteBtn.setAttribute("onclick", deleteBtnOnClickValue);
+                                         deleteBtn.innerHTML = "Delete";
+                                         btnGroup.appendChild(deleteBtn);
+
+                                        document.getElementById('myFlexBox').appendChild(col);
+                                         i++;
+                                     });
+                         }
+                     });
+        }
+
+        function cognitoUserPoolStorage()
+        {
+            if (cognitoUser != null)
+            {
+                cognitoUser.getSession(function(err, session)
+                        {
+                            if(err)
+                            {
+                                alert(err.message);
+                                return;
+                            }
+                            console.log('session validity: ' + session.isValid());
+                            
+                            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                                    {
+                                        IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                                        Logins         :
+                                        {
+                                            'cognito-idp.us-east-2.amazonaws.com/us-east-2_Yb705u1zm' : session.getIdToken().getJwtToken()
+                                        }
+                                    });
+
+                            getIdentityId();
+
+                            console.log('Cognito User Pool Login Success!');
+                        });
+            }
+        }
+
+        function FBuserStorage()
+        {
+            FB.getLoginStatus(function(response) 
+                    {
+                        if (response.status === 'connected') 
+                        {
+                            console.log('Logged in to Facebook.');
+                            
+                            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                                    {
+                                        IdentityPoolId : 'us-east-2:022363f7-729e-471f-a3d4-58bd6f92dd19',
+                                        Logins         :
+                                        {
+                                            'graph.facebook.com': response.authResponse.accessToken
+                                        }
+                                    });
+                            
+                            getIdentityId();
+                        }
+                    });
+        }
+
+        function getIdentityId()
+        {
+            AWS.config.credentials.get(function()
+                    {
+                        identityId = AWS.config.credentials.identityId;
+                        console.log(identityId);
+                        listObjects();
+                        return identityId.toString();
+                    });
+        }
+
+        function create_docClient()
+        {
+            dynamodb = new AWS.DynamoDB(
+                    {
+                        region : 'us-east-2'
+                    });
+            
+            docClient = new AWS.DynamoDB.DocumentClient(
+                    {
+                         service : dynamodb
+                    });
+        }
+
+    </script>
+    </body>
+    
+    <!-- validInput.js -->
+    <script src="./validInput.js"></script>
+    
+    <!-- Dependencies at bottom for faster load time -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
 </html>

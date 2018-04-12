@@ -205,7 +205,7 @@
                                 {
                                     if (error)
                                     {
-                                        alert(error.message);
+                                        console.log(error);
                                     }
                                     else
                                     {
@@ -273,10 +273,19 @@
         if (file)
         {
             var fileName = file.name;
+            var re = fileName.slice((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1);
+            var ext = "." + re;
             //Odds of the same fileName is 1 and 100 quintillion
-            var newName = Math.floor((Math.random() * 100000000000000000000) + 1);
+            var newName = Math.floor((Math.random() * 100000000000000000000) + 1).toString();
             
             var objkey = 'userPhotos/' + newName;
+            
+            if(typeof re !== 'undefined' && re !== null && re !== "" && re.match('\s') !== true)
+            {
+                newName = newName + ext;
+                objkey = objkey + ext;
+            }
+
             uploadPhoto(objkey, file);
 
             picture = objkey;
@@ -362,7 +371,7 @@
                       //Obtain AWS credentials
                       AWS.config.credentials.get(function()
                               {
-                                  //Access AWS resources here.
+                                  return;
                               });
                     }
                     else
@@ -386,7 +395,7 @@
                                         //Obtains AWS credentials
                                         AWS.config.credentials.get(function()
                                                 {
-                                                    //Access AWS resources here
+                                                    return;
                                                 });
                                     }
                                     else
