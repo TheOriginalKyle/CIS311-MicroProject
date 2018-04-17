@@ -55,31 +55,32 @@
         <div id="jumbotron" class="jumbotron jumbotron-fluid">
                 <h1 style="text-align:center">Cloud Storage</h1>
                 <p id="status"></p>
-                <div class="d-flex flex-wrap justify-content-center" id="myFlexBox">
-                    <div class="p-2">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h5 class="card-title">Upload a File</h5>
-                                <img class="p-2" src="./open-iconic/svg/cloud.svg" style="height:150px" />
-                                <p class="card-text">
-                                <label id="cFilelbl" class="custom-file" style="text-align:left">
-                                    <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
-                                    <span id="cFilespan" class="custom-file-control form-control-file" ></span>
-                                </label>
-                                </p>
-                                <p class="card-text">
-                                <input id="cFileTitleValue" class="form-control" type="text" placeholder="Title" />
-                                </p>
-                                <p class="card-text">
-                                <a href="http://link">http://www.iamawesome.com</a>
-                                </p>
-                                <button type="button" class="btn btn-success" id="putThis" onClick="putThis('cFile')">Upload</button>
+                <div class="parent-container">
+                    <div class="d-flex flex-wrap justify-content-center" id="myFlexBox">
+                        <div class="p-2">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title">Upload a File</h5>
+                                    <img class="p-2" src="./open-iconic/svg/cloud.svg" style="height:150px" />
+                                    <p class="card-text">
+                                    <label id="cFilelbl" class="custom-file" style="text-align:left">
+                                        <input id="cFile" type="file" class="custom-file-input" onchange="responsiveFileName('cFile')" >
+                                        <span id="cFilespan" class="custom-file-control form-control-file" ></span>
+                                    </label>
+                                    </p>
+                                    <p class="card-text">
+                                    <input id="cFileTitleValue" class="form-control" type="text" placeholder="Title" />
+                                    </p>
+                                    <p class="card-text">
+                                    <a href="http://link">http://www.iamawesome.com</a>
+                                    </p>
+                                    <button type="button" class="btn btn-success" id="putThis" onClick="putThis('cFile')">Upload</button>
+                                </div>
                             </div>
                         </div>
+                        <div class="d-flex flex-wrap justify-content-center" id="myObjects">
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <p id="output"></p>
                 </div>
             </div>
         </div>
@@ -206,6 +207,7 @@
                         }
                         else
                         {
+                            deleteList();
                             listObjects();
                         }
                     });
@@ -277,6 +279,7 @@
                             else
                             {
                                 console.log(data);
+                                deleteList();
                                 listObjects();
                             }
                         });
@@ -316,6 +319,7 @@
                             else
                             {
                                 console.log(data);
+                                deleteList();
                                 listObjects();
                             }
                         });
@@ -337,6 +341,7 @@
                             else
                             {
                                 console.log(data);
+                                deleteList();
                                 listObjects();
                             }
                         });
@@ -387,6 +392,7 @@
                         else
                         {
                             console.log(data);
+                            deleteList();
                             listObjects();
                         }
                     });
@@ -394,32 +400,33 @@
 
         function listObjects()
         {
-             console.log('Listing Objects');
-             
-             create_docClient(); 
-             
-             params =
-             {
-                 TableName: 'cloudStorageTable',
-                 KeyConditionExpression: "#accountId = :identityId",
-                 ExpressionAttributeNames:
-                 {
-                     "#accountId" : "userId"
-                 },
-                 ExpressionAttributeValues:
-                 {
-                     ":identityId" : identityId
-                 }
-             };
-
-             docClient.query(params, function(err, data)
-                     {
-                         if(err)
-                         {
-                             console.log(err);
-                         }
-                         else
-                         {
+            try{deleteList();}catch(err){console.log(err);}
+            console.log('Listing Objects');
+            
+            create_docClient(); 
+            
+            params =
+            {
+                TableName: 'cloudStorageTable',
+                KeyConditionExpression: "#accountId = :identityId",
+                ExpressionAttributeNames:
+                {
+                    "#accountId" : "userId"
+                },
+                ExpressionAttributeValues:
+                {
+                    ":identityId" : identityId
+                }
+            };
+            
+            docClient.query(params, function(err, data)
+                    {
+                        if(err)
+                        {
+                            console.log(err);
+                        }
+                        else
+                        {
                              console.log(data);
                              
                              var i=0;
@@ -427,16 +434,6 @@
                              data.Items.forEach(function(result)
                                      {
                                          //console.log(result.userId + " (" + result.fileName  + ")");
-                                         try
-                                         {
-                                             var node = document.getElementById("myFlexBox");
-                                             var oldChildId = "col" + i;
-                                             var oldChild = document.getElementById(oldChildId);
-                                             node.removeChild(oldChild);
-                                         }
-                                         catch
-                                         {}
-
                                          var col = document.createElement("div");
                                          col.setAttribute("class", "p-2");
                                          var colId = "col" + i;
@@ -538,11 +535,21 @@
                                          deleteBtn.innerHTML = "Delete";
                                          btnGroup.appendChild(deleteBtn);
 
-                                        document.getElementById('myFlexBox').appendChild(col);
+                                        document.getElementById('myObjects').appendChild(col);
                                          i++;
                                      });
                          }
                      });
+        }
+
+        function deleteList()
+        {
+            var node = document.getElementById("myObjects");
+            var childs = document.getElementById("myObjects").childNodes;
+            for (var i = 0; i < childs.length; i++)
+            {
+                node.removeChild(node.childNodes[i]);
+            }
         }
 
         function cognitoUserPoolStorage()
@@ -602,6 +609,7 @@
                     {
                         identityId = AWS.config.credentials.identityId;
                         console.log(identityId);
+                        deleteList();
                         listObjects();
                         return identityId.toString();
                     });
