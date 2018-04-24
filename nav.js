@@ -86,15 +86,15 @@ function nav()
   dropdown.appendChild(dropdownMenu);
 
   //VIP page is not part of dropdown menu so it needs to be a li element.
-  var vipNavItem = document.createElement("li");
-  vipNavItem.setAttribute("class", "nav-item");
-  var vipPg = document.createElement("a");
-  vipPg.setAttribute("class", "nav-link");
-  vipPg.setAttribute("href", "./vip.html");
-  vipPg.setAttribute("id", "vipPg");
-  vipPg.innerHTML="VIP";
-  vipNavItem.appendChild(vipPg);
-  navbarNav.appendChild(vipNavItem);
+  var cloudNavItem = document.createElement("li");
+  cloudNavItem.setAttribute("class", "nav-item");
+  var cloudPg = document.createElement("a");
+  cloudPg.setAttribute("class", "nav-link");
+  cloudPg.setAttribute("href", "./cloud.html");
+  cloudPg.setAttribute("id", "cloudPg");
+  cloudPg.innerHTML="My Cloud";
+  cloudNavItem.appendChild(cloudPg);
+  navbarNav.appendChild(cloudNavItem);
 
   //Contact Page
   var contactNavItem = document.createElement("li");
@@ -118,6 +118,7 @@ function nav()
   userIcon.setAttribute("class", "nav-link dropdown-toggle");
   userIcon.setAttribute("href", "./login.html");
   userIcon.setAttribute("id", "navbardrop2");
+  userIcon.innerHTML="Login or Register     ";
   userIcon.setAttribute("data-toggle", "dropdown");
   var accountIcon = document.createElement("span");
   accountIcon.setAttribute("class", "oi oi-person");
@@ -151,23 +152,6 @@ function nav()
   myProfilePg.innerHTML="My Profile";
   dropdownMenu2.appendChild(myProfilePg);
   userMenuDropdown.appendChild(dropdownMenu2);
-
-  //SearchBox
-  var formClass = document.createElement("form");
-  formClass.setAttribute("class", "form-inline my-2 my-lg-0");
-  var inputClass = document.createElement("input");
-  inputClass.setAttribute("class", "form-control mr-sm-2");
-  inputClass.setAttribute("type", "text");
-  inputClass.setAttribute("placeholder", "Search");
-  inputClass.setAttribute("aria-label", "Search");
-  formClass.appendChild(inputClass);
-  //SearchButton
-  var searchBtn = document.createElement("button");
-  searchBtn.setAttribute("class", "btn btn-outline-success my-2 my-sm-0");
-  searchBtn.setAttribute("type", "submit");
-  searchBtn.innerHTML="Search";
-  formClass.appendChild(searchBtn);
-  navbarLinks.appendChild(formClass);
 
   //Inserts into body.
   document.body.appendChild(myNav);
