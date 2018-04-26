@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+    <!-- Iconic -->
+    <link href="./open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+
+    <!-- navmenu source -->
+    <script src="./nav.js"></script>
+
+  </head>
+  <body>
+    <!-- Generates Navigation Menu -->
+    <script>nav()</script>
+    <!-- Modify's navigation menu to set current page to active -->
+    <script>document.getElementById("navbardrop").setAttribute("class", "nav-link dropdown-toggle active")</script>
+
+    <script></script>
+
+    <div class="jumbotron jumbotron-fluid">
+        <h1 style="text-align:center">Projects</h1>
+        <h5 style="text-align:center">Mostly coding projects but I hope to add more SysAdmin projects in the future.</h5>
+        <div class="parent-container">
+            <div class="d-flex flex-wrap justify-content-center" id="myFlexBox">
+                <div class="card text-center p-2 m-2" style="width: 25rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Z-Ultimate Self Defense</h5>
+                        <a href="https://www.uplandzultimate.com/">
+                            <img class="p-2" src="./Assets/Z-Ultimate" style="height: 150px"/>
+                        </a>
+                        <p class="card-text text-left">A website I designed and currently manage for a nominal monthly fee. Features include blogging and social media integration, Google Calendar as well as the ability to register and follow events. In addition the site had to be as easy to maintain as possible.</p>
+                    </div>
+                    <div class="card-footer text-right">
+                        <a type="button" class="btn btn-success" href="https://www.uplandzultimate.com/" target="_blank">Check it Out</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="card text-center p-2 m-2" style="width: 25rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">SDN Project</h5>
+                            <a href="https://github.com/TheOriginalKyle/CIS347">
+                                <img class="p-2" src="./Assets/GitHub-Mark-120px-plus.png"/>
+                            </a>
+                            <p class="card-text text-left">The goal of this academic project was to utilize OpenDaylight's API's to automate the port security of a Juniper Switch. In practice this means that when a device connects to a port its MAC address would auto-magically be locked to that port. In addition to a PoE light lighting up to indicate that the port was taken. A very fun project with some unique challenges.</p>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a type="button" class="btn btn-success" href="https://github.com/TheOriginalKyle/CIS347" target="_blank">See the Code</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card text-center p-2 m-2" style="width: 25rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">kyle-bohlander.tech</h5>
+                            <a href="">
+                                <img class="p-2" src="./Assets/GitHub-Mark-120px-plus.png"/>
+                            </a>
+                            <p class="card-text text-left">Funny enough this website started out as an extra-credit class project. The project requirements were to create a "serverless" website using only Javascript, HTML and Bootstraps CSS. It had to include Facebook authentication as well as a username and password authentication. And had to allow interaction with an S3 Bucket and DynamoDB.</p>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a type="button" class="btn btn-success" href="" target="_blank">See the Code</a>
+                            <a type="button" class="btn btn-primary" href="./about.html">More Info</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card text-center p-2 m-2" style="width: 25rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Secure User Auth</h5>
+                            <a href="https://github.com/TheOriginalKyle/login-system">
+                                <img class="p-2" src="./Assets/GitHub-Mark-120px-plus.png"/>
+                            </a>
+                            <p class="card-text text-left">This is by no means the first project to utilize some form of secure user authentication. However this is the first one that required me to develop my own from scratch using PHP. This is on top of deploying a full LAMP stack and being able to do a live demonstration of it all functioning in class. All things considered it was one of my easier projects.</p>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a type="button" class="btn btn-success" href="https://github.com/TheOriginalKyle/login-system" target="_blank">See the Code</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card text-center p-2 m-2" style="width: 25rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Point of Sale System</h5>
+                            <a href="https://github.com/TheOriginalKyle/kdbohlander_POS">
+                                <img class="p-2" src="./Assets/GitHub-Mark-120px-plus.png"/>
+                            </a>
+                            <p class="card-text text-left">This was my first project in the Intermediate Java class. Its a fairly straight forward project, with the goal of sort of emulating a POS system kind of like an online store. It'll grab customer information and whatever items they selected in their cart, calculate their totals and generate a receipt. Its also one of the first programs I ever wrote with a Graphical User Interface.</p>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a type="button" class="btn btn-success" href="https://github.com/TheOriginalKyle/kdbohlander_POS" target="_blank">See the Code</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card text-center p-2 m-2" style="width: 25rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">GCPU_V2</h5>
+                            <a href="https://github.com/TheOriginalKyle/GCPU_App_V2">
+                                <img class="p-2" src="./Assets/GitHub-Mark-120px-plus.png"/>
+                            </a>
+                            <p class="card-text text-left">A text adventure game (no graphics), titled "The Great Calpoly Underground". This was a continuation from a previous project with a couple of added features such as saving and loading your progress. The ability to examine empty rooms (ok that was a bug but its fixed now). Plus you can hold multiple items and drop them across the map.</p>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a type="button" class="btn btn-success" href="https://github.com/TheOriginalKyle/GCPU_App_V2" target="_blank">See the Code</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+
+  <!-- Dependencies at bottom for faster load time -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+  <script  src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+</html>

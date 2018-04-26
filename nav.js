@@ -8,7 +8,7 @@ function nav()
   var brand = document.createElement("a");
   brand.setAttribute("class", "navbar-brand");
   brand.setAttribute("href", "./index.html");
-  brand.innerHTML="Kyle Bohlander";
+  brand.innerHTML="kyle@kyle-bohlander.tech:~$";
   myNav.appendChild(brand);
 
   //Toggler/collapsible button
@@ -44,48 +44,18 @@ function nav()
   navItem1.appendChild(aboutPg);
   navbarNav.appendChild(navItem1);
 
-  //DropDown Menu will be auto organized to left (mr-auto)
-  var dropdown = document.createElement("li");
-  dropdown.setAttribute("class", "nav-item dropdown");
-  var blogPg = document.createElement("a");
-  blogPg.setAttribute("class", "nav-link dropdown-toggle");
-  blogPg.setAttribute("href", "./blog.html");
-  blogPg.setAttribute("id", "navbardrop");
-  blogPg.setAttribute("data-toggle", "dropdown");
-  blogPg.innerHTML="Blog";
-  dropdown.appendChild(blogPg);
-  navbarNav.appendChild(dropdown);
+  //Project Page
+  var projectItem = document.createElement("li");
+  projectItem.setAttribute("class", "nav-item");
+  var projectPg = document.createElement("a");
+  projectPg.setAttribute("class", "nav-link");
+  projectPg.setAttribute("href", "./project.html");
+  projectPg.setAttribute("id", "projectPg");
+  projectPg.innerHTML="Projects";
+  projectItem.appendChild(projectPg);
+  navbarNav.appendChild(projectItem);
 
-  //Actual dropdown menu items
-  var dropdownMenu = document.createElement("div");
-  dropdownMenu.setAttribute("class", "dropdown-menu");
-  //Projects Page
-  var projectsPg = document.createElement("a");
-  projectsPg.setAttribute("class", "dropdown-item");
-  projectsPg.setAttribute("href", "#");
-  projectsPg.innerHTML="Projects";
-  dropdownMenu.appendChild(projectsPg);
-  //Recents Page
-  var recentPg = document.createElement("a");
-  recentPg.setAttribute("class", "dropdown-item");
-  recentPg.setAttribute("href", "#");
-  recentPg.innerHTML="Recent";
-  dropdownMenu.appendChild(recentPg);
-  //Popular Page
-  var popularPg = document.createElement("a");
-  popularPg.setAttribute("class", "dropdown-item");
-  popularPg.setAttribute("href", "#");
-  popularPg.innerHTML="Popular";
-  dropdownMenu.appendChild(popularPg);
-  //Subscribe Page
-  var subscribePg = document.createElement("a");
-  subscribePg.setAttribute("class", "dropdown-item");
-  subscribePg.setAttribute("href", "#");
-  subscribePg.innerHTML="Subscribe";
-  dropdownMenu.appendChild(subscribePg);
-  dropdown.appendChild(dropdownMenu);
-
-  //VIP page is not part of dropdown menu so it needs to be a li element.
+  //Cloud Page
   var cloudNavItem = document.createElement("li");
   cloudNavItem.setAttribute("class", "nav-item");
   var cloudPg = document.createElement("a");

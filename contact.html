@@ -23,46 +23,17 @@
   <!-- Modify's navigation menu to set current page to active -->
   <script>document.getElementById("contactPg").setAttribute("class", "nav-link active")</script>
 
-  <div class="jumbotron jumbotron-fluid">
-    <div class="container">
-      <form>
-        <div class="form-group" id="emailDiv">
-          <label for="email">*Email address</label>
-          <div class="alert alert-warning" role="alert" id="invalid_emailDiv" hidden>Please put in a valid Email (Example@email.com).</div>
-          <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@email.com" oninput="validEmail(true), enableButton()"/>
-        </div>
-        <div class="form-group" id="subDiv">
-          <label for="sub">*Subject</label>
-          <div class="alert alert-warning" role="alert" id="invalid_subDiv" hidden>Cannot be blank!</div>
-          <textarea class="form-control" id="sub" rows="1" placeholder="You're Amazing!" oninput="notBlank('sub', true), enableButton()"></textarea>
-        </div>
-        <div class="form-group" id="msgDiv">
-          <label for="msg">*Message</label>
-          <div class="alert alert-warning" role="alert" id="invalid_msgDiv" hidden>Cannot be blank!</div>
-          <textarea class="form-control" id="msg" rows="3" placeholder="Here's a list of reasons why I think you're the most amazing person in the history of ever..." oninput="notBlank('msg', true), enableButton()"></textarea>
-        </div>
-        <button type="submit" class="btn btn-secondary" id="submitBtn" onclick="validEmail(true), notBlank('msg', true), notBlank('sub', true)" disabled>Send</button>
-      </form>
+  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column text-center">
+        <main class="inner cover" role="main">
+        <h1 class="cover-heading">Get in Contact with Me.</h1>
+        <img class="rounded-circle p-2 h-75" src="./Assets/kyle.jpg" />
+        <p class="lead">Feel free to message me on LinkedIn or by emailing me at...</p>
+        <p class="lead">2002kbohlander@gmail.com</p>
+        <a class="btn btn-lg btn-primary" href="https://www.linkedin.com/in/kyle-bohlander/">LinkedIn</a>
+        </p>
+        </main>
     </div>
-  </div>
-
-  <script>
-    function enableButton()
-    {
-      if(validEmail(false) == true && notBlank('sub', false) == true && notBlank('msg', false) == true)
-      //If all inputs are valid enable button.
-      {
-        document.getElementById("submitBtn").setAttribute("class", "btn btn-primary");
-        document.getElementById("submitBtn").removeAttribute("disabled");
-      }
-      else
-      //Else disable button.
-      {
-        document.getElementById("submitBtn").setAttribute("class", "btn btn-secondary");
-        document.getElementById("submitBtn").setAttribute("disabled", "");
-      }
-    }
-  </script>
+    
 
   <!-- Dependencies at bottom for faster load time -->
 
